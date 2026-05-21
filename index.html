@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>Camino a Primera</title>
+
+    <link rel="stylesheet" href="styles.css"/>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+<div id="app-wrapper">
+
+    <!-- ========================================================= -->
+    <!-- WELCOME -->
+    <!-- ========================================================= -->
+    <section id="screen-welcome" class="screen active">
+
+        <div class="ambient-glow ambient-top-left"></div>
+        <div class="ambient-glow-2 ambient-bottom-right"></div>
+
+        <div class="welcome-logo-wrap">
+            <div class="welcome-logo">
+                <i data-lucide="shield"></i>
+            </div>
+        </div>
+
+        <div class="welcome-badge">
+            <div class="badge-dot"></div>
+            MODO CARRERA
+        </div>
+
+        <h1 class="welcome-title">
+            CAMINO A<br>
+            <span class="welcome-gradient">PRIMERA</span>
+        </h1>
+
+        <p class="welcome-subtitle">
+            Registrá entrenamientos, partidos, estadísticas y objetivos
+            hasta llegar al fútbol profesional.
+        </p>
+
+        <button
+            class="btn-primary"
+            onclick="goTo('welcome','profile')"
+        >
+            EMPEZAR
+            <i data-lucide="arrow-right"></i>
+        </button>
+
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- PROFILE -->
+    <!-- ========================================================= -->
+    <section id="screen-profile" class="screen hidden-right no-scrollbar">
+
+        <div class="screen-header">
+            <div>
+                <h2 class="screen-title">Tu Perfil</h2>
+                <p class="screen-subtitle">
+                    Construí tu identidad futbolística.
+                </p>
+            </div>
+
+            <div class="step-badge">
+                PASO 1/2
+            </div>
+        </div>
+
+        <!-- Nombre -->
+        <label class="form-label">Nombre del Jugador</label>
+
+        <input
+            id="player-name"
+            class="form-input"
+            placeholder="Ej: Agustín"
+        >
+
+        <!-- Club -->
+        <label class="form-label mt">Club Actual</label>
+
+        <input
+            id="club-name"
+            class="form-input"
+            placeholder="Ej: Villa Dálmine"
+        >
+
+        <!-- Posición -->
+        <label class="form-label mt">Posición</label>
+
+        <div class="select-wrap">
+            <select id="position" class="form-select">
+
+                <option value="">Seleccionar</option>
+
+                <option>Arquero</option>
+
+                <option>Lateral Derecho</option>
+                <option>Lateral Izquierdo</option>
+
+                <option>Defensor Central</option>
+
+                <option>Mediocampista Defensivo</option>
+                <option>Mediocampista Central</option>
+                <option>Mediocampista Ofensivo</option>
+
+                <option>Extremo Derecho</option>
+                <option>Extremo Izquierdo</option>
+
+                <option>Segundo Delantero</option>
+                <option>Delantero Centro</option>
+
+            </select>
+
+            <i data-lucide="chevron-down"></i>
+        </div>
+
+        <!-- Altura -->
+        <label class="form-label mt">Altura (cm)</label>
+
+        <input
+            id="height"
+            type="number"
+            class="form-input"
+            placeholder="Ej: 178"
+        >
+
+        <!-- Peso -->
+        <label class="form-label mt">Peso (kg)</label>
+
+        <input
+            id="weight"
+            type="number"
+            class="form-input"
+            placeholder="Ej: 72"
+        >
+
+        <!-- IMC -->
+        <div class="imc-box">
+            <span class="imc-label">IMC</span>
+            <span id="bmi-result" class="imc-value">--</span>
+        </div>
+
+        <!-- Pie -->
+        <label class="form-label mt">Pie Hábil</label>
+
+        <div class="toggle-group">
+            <button
+                id="foot-right"
+                class="toggle-btn active"
+                onclick="setFoot('diestro')"
+            >
+                DIESTRO
+            </button>
+
+            <button
+                id="foot-left"
+                class="toggle-btn"
+                onclick="setFoot('zurdo')"
+            >
+                ZURDO
+            </button>
+        </div>
+
+        <!-- Skills -->
+        <label class="form-label mt">Habilidad Principal</label>
+
+        <div class="select-wrap">
+            <select id="attr-1" class="form-select">
+
+                <option value="">Seleccionar</option>
+
+                <option>Velocidad</option>
+                <option>Definición</option>
+                <option>Regate</option>
+                <option>Pase</option>
+                <option>Visión</option>
+                <option>Resistencia</option>
+                <option>Físico</option>
+                <option>Marcaje</option>
+                <option>Reflejos</option>
+                <option>Juego Aéreo</option>
+
+            </select>
+
+            <i data-lucide="chevron-down"></i>
+        </div>
+
+        <label class="form-label mt">Segunda Habilidad</label>
+
+        <div class="select-wrap">
+            <select id="attr-2" class="form-select">
+
+                <option value="">Seleccionar</option>
+
+                <option>Velocidad</option>
+                <option>Definición</option>
+                <option>Regate</option>
+                <option>Pase</option>
+                <option>Visión</option>
+                <option>Resistencia</option>
+                <option>Físico</option>
+                <option>Marcaje</option>
+                <option>Reflejos</option>
+                <option>Juego Aéreo</option>
+
+            </select>
+
+            <i data-lucide="chevron-down"></i>
+        </div>
+
+        <label class="form-label mt">
+            Tercera Habilidad (Opcional)
+        </label>
+
+        <div class="select-wrap">
+            <select id="attr-3" class="form-select">
+
+                <option value="">Omitir</option>
+
+                <option>Velocidad</option>
+                <option>Definición</option>
+                <option>Regate</option>
+                <option>Pase</option>
+                <option>Visión</option>
+                <option>Resistencia</option>
+                <option>Físico</option>
+                <option>Marcaje</option>
+                <option>Reflejos</option>
+                <option>Juego Aéreo</option>
+
+            </select>
+
+            <i data-lucide="chevron-down"></i>
+        </div>
+
+        <div style="height:2rem"></div>
+
+        <button class="btn-green" onclick="validateProfile()">
+            CONTINUAR
+        </button>
+
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- OBJECTIVES -->
+    <!-- ========================================================= -->
+    <section id="screen-objectives" class="screen hidden-right no-scrollbar">
+
+        <div class="screen-header">
+            <div>
+                <h2 class="screen-title">Tus Objetivos</h2>
+
+                <p class="screen-subtitle">
+                    Tu mentalidad define tu carrera.
+                </p>
+            </div>
+
+            <div class="step-badge">
+                PASO 2/2
+            </div>
+        </div>
+
+        <label class="form-label">Objetivo Corto Plazo</label>
+
+        <textarea
+            id="obj-short"
+            class="form-textarea"
+            rows="3"
+            placeholder="Ej: Ser titular este año"
+        ></textarea>
+
+        <label class="form-label mt">Objetivo Mediano Plazo</label>
+
+        <textarea
+            id="obj-mid"
+            class="form-textarea"
+            rows="3"
+            placeholder="Ej: Llegar a reserva"
+        ></textarea>
+
+        <label class="form-label mt">Objetivo Largo Plazo</label>
+
+        <textarea
+            id="obj-long"
+            class="form-textarea"
+            rows="3"
+            placeholder="Ej: Debutar profesionalmente"
+        ></textarea>
+
+        <label class="form-label mt">Tu Mentalidad</label>
+
+        <textarea
+            id="reflection-general"
+            class="form-textarea"
+            rows="4"
+            placeholder="¿Qué te impulsa?"
+        ></textarea>
+
+        <div style="height:2rem"></div>
+
+        <button
+            class="btn-green"
+            onclick="saveObjectivesAndLaunch()"
+        >
+            CREAR PERFIL
+        </button>
+
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- DASHBOARD -->
+    <!-- ========================================================= -->
+    <section id="screen-dashboard" class="screen hidden-right no-scrollbar">
+
+        <div class="dash-header">
+
+            <div>
+                <h2
+                    id="dash-player-name"
+                    class="dash-player-name"
+                >
+                    Jugador
+                </h2>
+
+                <p
+                    id="dash-player-club"
+                    class="dash-player-club"
+                >
+                    -
+                </p>
+            </div>
+
+            <div id="legend-badge" class="legend-badge hidden">
+                <i data-lucide="crown"></i>
+                LEYENDA
+            </div>
+
+        </div>
+
+        <div class="stat-grid">
+
+            <div class="stat-box">
+                <div class="stat-box-label">GOLES</div>
+
+                <div class="progress-donut">
+                    <svg viewBox="0 0 80 80">
+
+                        <circle
+                            cx="40"
+                            cy="40"
+                            r="34"
+                            stroke="#18181b"
+                            stroke-width="6"
+                            fill="none"
+                        />
+
+                        <circle
+                            id="donut-goles"
+                            class="circle-fill"
+                            cx="40"
+                            cy="40"
+                            r="34"
+                            stroke="#34d399"
+                            stroke-width="6"
+                            fill="none"
+                            stroke-linecap="round"
+                            transform="rotate(-90 40 40)"
+                            stroke-dasharray="213.6"
+                            stroke-dashoffset="213.6"
+                        />
+                    </svg>
+
+                    <div class="donut-text">
+                        <span id="num-goles" class="donut-number">0</span>
+                        <span id="goal-goles" class="donut-goal">/5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-box-label">ASISTENCIAS</div>
+
+                <div class="progress-donut">
+                    <svg viewBox="0 0 80 80">
+
+                        <circle
+                            cx="40"
+                            cy="40"
+                            r="34"
+                            stroke="#18181b"
+                            stroke-width="6"
+                            fill="none"
+                        />
+
+                        <circle
+                            id="donut-asistencias"
+                            class="circle-fill"
+                            cx="40"
+                            cy="40"
+                            r="34"
+                            stroke="#a78bfa"
+                            stroke-width="6"
+                            fill="none"
+                            stroke-linecap="round"
+                            transform="rotate(-90 40 40)"
+                            stroke-dasharray="213.6"
+                            stroke-dashoffset="213.6"
+                        />
+                    </svg>
+
+                    <div class="donut-text">
+                        <span id="num-asistencias" class="donut-number">0</span>
+                        <span id="goal-asistencias" class="donut-goal">/3</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <button
+            class="register-trigger"
+            onclick="openRegisterModal()"
+        >
+            <div>
+                <div class="register-trigger-title">
+                    Registrar Día
+                </div>
+
+                <div class="register-trigger-sub">
+                    Entrenamiento o partido
+                </div>
+            </div>
+
+            <div class="register-trigger-icon">
+                <i data-lucide="plus"></i>
+            </div>
+        </button>
+
+        <div class="feed-header">
+            <div class="feed-title">
+                HISTORIAL
+            </div>
+        </div>
+
+        <div id="journal-feed"></div>
+
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- NAV -->
+    <!-- ========================================================= -->
+    <nav id="app-nav">
+
+        <button
+            id="nav-dash"
+            class="nav-btn active"
+            onclick="navigate('dash')"
+        >
+            <i data-lucide="layout-dashboard"></i>
+            Inicio
+        </button>
+
+        <button
+            id="nav-stats"
+            class="nav-btn"
+            onclick="navigate('stats')"
+        >
+            <i data-lucide="bar-chart-3"></i>
+            Stats
+        </button>
+
+        <button
+            id="nav-settings"
+            class="nav-btn"
+            onclick="navigate('settings')"
+        >
+            <i data-lucide="settings"></i>
+            Ajustes
+        </button>
+
+    </nav>
+
+</div>
+
+<script src="main.js"></script>
+
+<script>
+    lucide.createIcons();
+</script>
+
+</body>
+</html>
