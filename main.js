@@ -4,28 +4,37 @@
 
 'use strict';
 
-// ============================================================
-// STATE
-// ============================================================
+/* ============================================================
+   STATE
+   ============================================================ */
+
 let state = {
   profileSetupComplete: false,
+
   playerName: '',
   club: '',
+  age: '',
   position: '',
+
   height: '',
   weight: '',
   bmi: '',
-  footSide: 'Diestro',
+
+  footSide: 'diestro',
+
   attr1: '',
   attr2: '',
   attr3: '',
+
   goals: {
     goles: 10,
     asistencias: 5,
     partidos: 20,
-    entrenamientos: 6
+    entrenamientos: 10
   },
+
   history: [],
+
   objectives: {
     short: '',
     mid: '',
@@ -40,73 +49,111 @@ let activeReg = {
   asistencias: 0
 };
 
-let activeGoal = null;
+/* ============================================================
+   INIT
+   ============================================================ */
 
-// ============================================================
-// INIT
-// ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  if (window.lucide) lucide.createIcons();
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
 
   loadState();
 
-  const heightInput = document.getElementById('height');
-  const weightInput = document.getElementById('weight');
+  const height = document.getElementById('height');
+  const weight = document.getElementById('weight');
 
-  if (heightInput) {
-    heightInput.addEventListener('input', calculateBMI);
+  if (height) {
+    height.addEventListener('input', calculateBMI);
   }
 
-  if (weightInput) {
-    weightInput.addEventListener('input', calculateBMI);
+  if (weight) {
+    weight.addEventListener('input', calculateBMI);
   }
+
 });
 
-// ============================================================
-// STORAGE
-// ============================================================
+/* ============================================================
+   STORAGE
+   ============================================================ */
+
 function saveState() {
-  localStorage.setItem('camino_primera_v2', JSON.stringify(state));
+  localStorage.setItem(
+    'camino_a_primera_v3',
+    JSON.stringify(state)
+  );
 }
 
 function loadState() {
-  const saved = localStorage.getItem('camino_primera_v2');
+
+  const saved = localStorage.getItem(
+    'camino_a_primera_v3'
+  );
 
   if (!saved) return;
 
   try {
+
     state = JSON.parse(saved);
 
+    fillProfileData();
+
     if (state.profileSetupComplete) {
-      fillProfileData();
+
+      document
+        .getElementById('app-nav')
+        ?.classList.add('visible');
+
       showScreen('dashboard');
-      document.getElementById('app-nav')?.classList.add('visible');
+
       updateDashboardUI();
       updateStatsUI();
     }
+
   } catch (err) {
     console.error(err);
   }
+
 }
 
-// ============================================================
-// SCREEN CONTROL
-// ============================================================
+/* ============================================================
+   SCREEN CONTROL
+   ============================================================ */
+
 function showScreen(name) {
-  const screens = document.querySelectorAll('.screen');
 
-  screens.forEach(screen => {
-    screen.classList.remove('active');
-  });
+  document.querySelectorAll('.screen')
+    .forEach(screen => {
+      screen.classList.remove('active');
+    });
 
-  const target = document.getElementById(`screen-${name}`);
+  const target = document.getElementById(
+    `screen-${name}`
+  );
 
   if (target) {
     target.classList.add('active');
   }
+
+}
+
+function goTo(from, to) {
+
+  showScreen(to);
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+
 }
 
 function navigate(tab) {
+
+  if (!state.profileSetupComplete) {
+    return;
+  }
+
   const map = {
     dash: 'dashboard',
     stats: 'stats',
@@ -115,43 +162,62 @@ function navigate(tab) {
 
   showScreen(map[tab]);
 
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
+  document.querySelectorAll('.nav-btn')
+    .forEach(btn => {
+      btn.classList.remove('active');
+    });
 
-  document.getElementById(`nav-${tab}`)?.classList.add('active');
+  document
+    .getElementById(`nav-${tab}`)
+    ?.classList.add('active');
 
-  if (tab === 'dash') updateDashboardUI();
-  if (tab === 'stats') updateStatsUI();
+  if (tab === 'dash') {
+    updateDashboardUI();
+  }
+
+  if (tab === 'stats') {
+    updateStatsUI();
+  }
+
 }
 
-function goTo(from, to) {
-  showScreen(to);
-  if (window.lucide) lucide.createIcons();
-}
+/* ============================================================
+   BMI
+   ============================================================ */
 
-// ============================================================
-// BMI
-// ============================================================
 function calculateBMI() {
+
   const heightInput = document.getElementById('height');
   const weightInput = document.getElementById('weight');
-  const bmiValue = document.getElementById('bmi-value');
-  const bmiLabel = document.getElementById('bmi-status');
 
-  if (!heightInput || !weightInput || !bmiValue || !bmiLabel) return;
+  const bmiValue = document.getElementById('bmi-value');
+  const bmiStatus = document.getElementById('bmi-status');
+
+  if (
+    !heightInput ||
+    !weightInput ||
+    !bmiValue ||
+    !bmiStatus
+  ) {
+    return;
+  }
 
   const height = parseFloat(heightInput.value);
   const weight = parseFloat(weightInput.value);
 
   if (!height || !weight) {
+
     bmiValue.innerText = '--';
-    bmiLabel.innerText = 'Completá altura y peso';
+    bmiStatus.innerText = 'Esperando datos...';
+
     return;
   }
 
   const meters = height / 100;
-  const bmi = (weight / (meters * meters)).toFixed(1);
+
+  const bmi = (
+    weight / (meters * meters)
+  ).toFixed(1);
 
   state.bmi = bmi;
 
@@ -161,53 +227,124 @@ function calculateBMI() {
 
   if (bmi < 18.5) {
     label = 'Bajo peso';
-  } else if (bmi >= 25) {
+  }
+
+  if (bmi >= 25) {
     label = 'Peso elevado';
   }
 
-  bmiLabel.innerText = label;
+  bmiStatus.innerText = label;
+
 }
 
-// ============================================================
-// PROFILE
-// ============================================================
+/* ============================================================
+   PROFILE
+   ============================================================ */
+
 function setFoot(side) {
+
   state.footSide = side;
 
-  document.getElementById('foot-right')?.classList.remove('active');
-  document.getElementById('foot-left')?.classList.remove('active');
+  document
+    .getElementById('foot-right')
+    ?.classList.remove('active');
+
+  document
+    .getElementById('foot-left')
+    ?.classList.remove('active');
 
   if (side === 'diestro') {
-    document.getElementById('foot-right')?.classList.add('active');
+
+    document
+      .getElementById('foot-right')
+      ?.classList.add('active');
+
   } else {
-    document.getElementById('foot-left')?.classList.add('active');
+
+    document
+      .getElementById('foot-left')
+      ?.classList.add('active');
+
   }
+
 }
 
 function validateProfile() {
-  const playerName = document.getElementById('player-name')?.value.trim();
-  const club = document.getElementById('club-name')?.value.trim();
-  const position = document.getElementById('position')?.value;
-  const height = document.getElementById('height')?.value;
-  const weight = document.getElementById('weight')?.value;
 
-  const attr1 = document.getElementById('attr-1')?.value;
-  const attr2 = document.getElementById('attr-2')?.value;
-  const attr3 = document.getElementById('attr-3')?.value;
+  const playerName =
+    document.getElementById('player-name')
+    ?.value.trim();
 
-  if (!playerName || !club || !position || !height || !weight || !attr1 || !attr2) {
-    showNotification('Completá todos los datos obligatorios.', 'error');
+  const club =
+    document.getElementById('club-name')
+    ?.value.trim();
+
+  const age =
+    document.getElementById('player-age')
+    ?.value.trim();
+
+  const position =
+    document.getElementById('position')
+    ?.value;
+
+  const height =
+    document.getElementById('height')
+    ?.value;
+
+  const weight =
+    document.getElementById('weight')
+    ?.value;
+
+  const attr1 =
+    document.getElementById('attr-1')
+    ?.value;
+
+  const attr2 =
+    document.getElementById('attr-2')
+    ?.value;
+
+  const attr3 =
+    document.getElementById('attr-3')
+    ?.value;
+
+  if (
+    !playerName ||
+    !club ||
+    !age ||
+    !position ||
+    !height ||
+    !weight ||
+    !attr1 ||
+    !attr2
+  ) {
+
+    showNotification(
+      'Completá todos los datos obligatorios.',
+      'error'
+    );
+
     return;
   }
 
-  if (attr1 === attr2 || (attr3 && attr1 === attr3) || (attr3 && attr2 === attr3)) {
-    showNotification('No repitas habilidades.', 'error');
+  if (
+    attr1 === attr2 ||
+    (attr3 && attr1 === attr3) ||
+    (attr3 && attr2 === attr3)
+  ) {
+
+    showNotification(
+      'No repitas habilidades.',
+      'error'
+    );
+
     return;
   }
 
   state.playerName = playerName;
   state.club = club;
+  state.age = age;
   state.position = position;
+
   state.height = height;
   state.weight = weight;
 
@@ -217,97 +354,174 @@ function validateProfile() {
 
   saveState();
 
-  goTo('profile', 'objectives');
+  showScreen('objectives');
 
-  showNotification('Datos guardados correctamente.');
+  showNotification(
+    'Perfil guardado.'
+  );
+
 }
 
 function fillProfileData() {
+
   const ids = {
+
     'player-name': state.playerName,
     'club-name': state.club,
+    'player-age': state.age,
+
     'height': state.height,
-    'weight': state.weight
+    'weight': state.weight,
+
+    'attr-1': state.attr1,
+    'attr-2': state.attr2,
+    'attr-3': state.attr3
+
   };
 
   Object.keys(ids).forEach(id => {
+
     const el = document.getElementById(id);
 
     if (el) {
       el.value = ids[id];
     }
+
   });
 
-  const position = document.getElementById('position');
+  const position = document.getElementById(
+    'position'
+  );
 
   if (position) {
     position.value = state.position;
   }
 
+  setFoot(
+    state.footSide || 'diestro'
+  );
+
   calculateBMI();
+
 }
 
-// ============================================================
-// OBJECTIVES
-// ============================================================
-function saveObjectivesAndLaunch() {
-  const objShort = document.getElementById('obj-short')?.value.trim();
-  const objMid = document.getElementById('obj-mid')?.value.trim();
-  const objLong = document.getElementById('obj-long')?.value.trim();
-  const reflectionGeneral = document.getElementById('reflection-general')?.value.trim();
+/* ============================================================
+   OBJECTIVES
+   ============================================================ */
 
-  if (!objShort || !objMid || !objLong || !reflectionGeneral) {
-    showNotification('Completá todos los objetivos.', 'error');
+function saveObjectivesAndLaunch() {
+
+  const short =
+    document.getElementById('obj-short')
+    ?.value.trim();
+
+  const mid =
+    document.getElementById('obj-mid')
+    ?.value.trim();
+
+  const long =
+    document.getElementById('obj-long')
+    ?.value.trim();
+
+  const reflection =
+    document.getElementById('reflection-general')
+    ?.value.trim();
+
+  if (
+    !short ||
+    !mid ||
+    !long ||
+    !reflection
+  ) {
+
+    showNotification(
+      'Completá todos los objetivos.',
+      'error'
+    );
+
     return;
   }
 
   state.objectives = {
-    short: objShort,
-    mid: objMid,
-    long: objLong,
-    reflection: reflectionGeneral
+    short,
+    mid,
+    long,
+    reflection
   };
 
   state.profileSetupComplete = true;
 
   saveState();
 
-  document.getElementById('app-nav')?.classList.add('visible');
+  document
+    .getElementById('app-nav')
+    ?.classList.add('visible');
 
   updateDashboardUI();
   updateStatsUI();
 
   showScreen('dashboard');
 
-  showNotification('¡Perfil completado! Bienvenido a tu camino.');
+  showNotification(
+    'Perfil completado.'
+  );
+
 }
 
-// ============================================================
-// DASHBOARD
-// ============================================================
-function updateDashboardUI() {
-  const playerName = document.getElementById('dash-player-name');
-  const playerClub = document.getElementById('dash-player-club');
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
 
-  if (playerName) {
-    playerName.innerText = state.playerName || 'Jugador';
+function updateDashboardUI() {
+
+  const heroName =
+    document.getElementById(
+      'dash-player-name'
+    );
+
+  const heroClub =
+    document.getElementById(
+      'dash-player-club'
+    );
+
+  const heroObjective =
+    document.getElementById(
+      'hero-main-objective'
+    );
+
+  if (heroName) {
+    heroName.innerText =
+      state.playerName || 'Jugador';
   }
 
-  if (playerClub) {
-    playerClub.innerText = `${state.position} • ${state.club}`;
+  if (heroClub) {
+
+    heroClub.innerText =
+      `${state.position} • ${state.club}`;
+
+  }
+
+  if (heroObjective) {
+
+    heroObjective.innerText =
+      state.objectives.short ||
+      'Seguir creciendo.';
+
   }
 
   const progress = recalculateProgress();
 
-  updateDonut('goles', progress.goles, state.goals.goles);
-  updateDonut('asistencias', progress.asistencias, state.goals.asistencias);
-  updateDonut('partidos', progress.partidos, state.goals.partidos);
-  updateDonut('entrenamientos', progress.entrenamientos, state.goals.entrenamientos);
+  setText('num-goles', progress.goles);
+  setText('num-asistencias', progress.asistencias);
+  setText('num-partidos', progress.partidos);
+  setText('num-entrenamientos', progress.entrenamientos);
 
   renderFeed();
+
 }
 
 function recalculateProgress() {
+
   const result = {
     goles: 0,
     asistencias: 0,
@@ -316,152 +530,194 @@ function recalculateProgress() {
   };
 
   state.history.forEach(item => {
+
     if (item.type === 'Partido') {
-      result.goles += Number(item.goles || 0);
-      result.asistencias += Number(item.asistencias || 0);
+
+      result.goles += Number(
+        item.goles || 0
+      );
+
+      result.asistencias += Number(
+        item.asistencias || 0
+      );
+
       result.partidos += 1;
+
     } else {
+
       result.entrenamientos += 1;
+
     }
+
   });
 
   return result;
+
 }
 
-function updateDonut(id, value, target) {
-  const number = document.getElementById(`num-${id}`);
-  const goal = document.getElementById(`goal-${id}`);
-  const circle = document.getElementById(`donut-${id}`);
+/* ============================================================
+   REGISTER
+   ============================================================ */
 
-  if (!number || !goal || !circle) return;
-
-  number.innerText = value;
-  goal.innerText = `/${target}`;
-
-  const radius = 34;
-  const circumference = 2 * Math.PI * radius;
-  const progress = Math.min((value / target) * 100, 100);
-  const offset = circumference - (progress / 100) * circumference;
-
-  circle.style.strokeDasharray = circumference;
-  circle.style.strokeDashoffset = offset;
-}
-
-function editGoal(type) {
-  activeGoal = type;
-  const goalInput = document.getElementById('goal-modal-input');
-  
-  if (goalInput) {
-    goalInput.value = state.goals[type];
-  }
-
-  document.getElementById('goal-modal')?.classList.add('show');
-}
-
-function closeGoalModal(e) {
-  if (!e || e.target.id === 'goal-modal') {
-    document.getElementById('goal-modal')?.classList.remove('show');
-  }
-}
-
-function saveGoalLimit() {
-  if (!activeGoal) return;
-
-  const goalInput = document.getElementById('goal-modal-input');
-  const value = parseInt(goalInput?.value) || 0;
-
-  if (value <= 0) {
-    showNotification('Ingresá un número válido.', 'error');
-    return;
-  }
-
-  state.goals[activeGoal] = value;
-  saveState();
-
-  updateDashboardUI();
-
-  closeGoalModal();
-
-  showNotification('Meta actualizada.');
-}
-
-// ============================================================
-// REGISTER
-// ============================================================
 function openRegisterModal() {
+
   activeReg = {
     type: 'Entrenamiento',
     goles: 0,
     asistencias: 0
   };
 
-  document.getElementById('register-modal')?.classList.add('show');
-
-  document.getElementById('reg-reflection').value = '';
-  document.getElementById('reg-val-goles').innerText = '0';
-  document.getElementById('reg-val-asistencias').innerText = '0';
+  document
+    .getElementById('register-modal')
+    ?.classList.add('show');
 
   setRegType('Entrenamiento');
-}
 
-function closeRegisterModal(e) {
-  if (!e || e.target.id === 'register-modal') {
-    document.getElementById('register-modal')?.classList.remove('show');
+  setText('reg-val-goles', 0);
+  setText('reg-val-asistencias', 0);
+
+  const reflection =
+    document.getElementById(
+      'reg-reflection'
+    );
+
+  if (reflection) {
+    reflection.value = '';
   }
+
 }
 
-function closeSheet(sheetId) {
-  document.getElementById(sheetId)?.classList.remove('show');
+function closeRegisterModal(e = null) {
+
+  if (
+    !e ||
+    e.target.id === 'register-modal'
+  ) {
+
+    document
+      .getElementById('register-modal')
+      ?.classList.remove('show');
+
+  }
+
+}
+
+function closeSheet(id) {
+
+  document
+    .getElementById(id)
+    ?.classList.remove('show');
+
 }
 
 function setRegType(type) {
+
   activeReg.type = type;
 
-  const regTraining = document.getElementById('reg-training');
-  const regMatch = document.getElementById('reg-match');
-  const matchFields = document.getElementById('match-fields');
+  const training =
+    document.getElementById(
+      'reg-training'
+    );
 
-  if (regTraining) regTraining.classList.remove('active');
-  if (regMatch) regMatch.classList.remove('active');
+  const match =
+    document.getElementById(
+      'reg-match'
+    );
+
+  const matchFields =
+    document.getElementById(
+      'match-fields'
+    );
+
+  training?.classList.remove('active');
+  match?.classList.remove('active');
 
   if (type === 'Entrenamiento') {
-    if (regTraining) regTraining.classList.add('active');
-    if (matchFields) matchFields.style.display = 'none';
+
+    training?.classList.add('active');
+
+    if (matchFields) {
+      matchFields.style.display = 'none';
+    }
+
   } else {
-    if (regMatch) regMatch.classList.add('active');
-    if (matchFields) matchFields.style.display = 'block';
+
+    match?.classList.add('active');
+
+    if (matchFields) {
+      matchFields.style.display = 'block';
+    }
+
   }
+
 }
 
 function adjustRegCounter(type, amount) {
+
   if (type === 'goles') {
-    activeReg.goles = Math.max(0, activeReg.goles + amount);
-    document.getElementById('reg-val-goles').innerText = activeReg.goles;
+
+    activeReg.goles = Math.max(
+      0,
+      activeReg.goles + amount
+    );
+
+    setText(
+      'reg-val-goles',
+      activeReg.goles
+    );
+
   }
 
   if (type === 'asistencias') {
-    activeReg.asistencias = Math.max(0, activeReg.asistencias + amount);
-    document.getElementById('reg-val-asistencias').innerText = activeReg.asistencias;
+
+    activeReg.asistencias = Math.max(
+      0,
+      activeReg.asistencias + amount
+    );
+
+    setText(
+      'reg-val-asistencias',
+      activeReg.asistencias
+    );
+
   }
+
 }
 
 function saveDailyLog() {
-  const reflection = document.getElementById('reg-reflection')?.value.trim();
+
+  const reflection =
+    document.getElementById(
+      'reg-reflection'
+    )
+    ?.value.trim();
 
   if (!reflection) {
-    showNotification('Escribí una reflexión.', 'error');
+
+    showNotification(
+      'Escribí una reflexión.',
+      'error'
+    );
+
     return;
   }
 
   const date = new Date();
 
   state.history.push({
+
     id: Date.now(),
+
     type: activeReg.type,
+
     goles: activeReg.goles,
     asistencias: activeReg.asistencias,
+
     reflection,
-    date: `${date.getDate()}/${date.getMonth() + 1}`
+
+    date:
+      `${date.getDate()}/${date.getMonth() + 1}`
+
   });
 
   saveState();
@@ -469,23 +725,32 @@ function saveDailyLog() {
   updateDashboardUI();
   updateStatsUI();
 
-  closeRegisterModal();
+  closeSheet('register-modal');
 
-  showNotification('Registro guardado.');
+  showNotification(
+    'Registro guardado.'
+  );
+
 }
 
-// ============================================================
-// FEED
-// ============================================================
+/* ============================================================
+   FEED
+   ============================================================ */
+
 function renderFeed() {
-  const feed = document.getElementById('journal-feed');
+
+  const feed =
+    document.getElementById(
+      'journal-feed'
+    );
 
   if (!feed) return;
 
   if (state.history.length === 0) {
+
     feed.innerHTML = `
       <div class="feed-empty">
-        Todavía no registraste ningún día.
+        Todavía no registraste días.
       </div>
     `;
 
@@ -494,110 +759,183 @@ function renderFeed() {
 
   feed.innerHTML = '';
 
-  [...state.history].reverse().forEach(item => {
-    const card = document.createElement('div');
+  [...state.history]
+    .reverse()
+    .forEach(item => {
 
-    card.className = 'feed-card';
+      const card =
+        document.createElement('div');
 
-    card.innerHTML = `
-      <div class="feed-card-header">
-        <span class="feed-card-type ${item.type === 'Partido' ? 'match' : 'training'}">
-          ${item.type}
-        </span>
+      card.className = 'feed-card';
 
-        <span class="feed-card-date">
-          ${item.date}
-        </span>
-      </div>
+      card.innerHTML = `
 
-      ${item.type === 'Partido' ? `
-        <div class="feed-card-stats">
-          <span class="stat-pill green">⚽ ${item.goles}</span>
-          <span class="stat-pill purple">🎯 ${item.asistencias}</span>
+        <div class="feed-card-header">
+
+          <span class="feed-card-type ${
+            item.type === 'Partido'
+              ? 'match'
+              : 'training'
+          }">
+            ${item.type}
+          </span>
+
+          <span class="feed-card-date">
+            ${item.date}
+          </span>
+
         </div>
-      ` : ''}
 
-      <p class="feed-card-reflection">
-        "${item.reflection}"
-      </p>
-    `;
+        ${
+          item.type === 'Partido'
+          ? `
+            <div class="feed-card-stats">
 
-    feed.appendChild(card);
-  });
+              <span class="stat-pill green">
+                ⚽ ${item.goles}
+              </span>
+
+              <span class="stat-pill purple">
+                🎯 ${item.asistencias}
+              </span>
+
+            </div>
+          `
+          : ''
+        }
+
+        <p class="feed-card-reflection">
+          "${item.reflection}"
+        </p>
+
+      `;
+
+      feed.appendChild(card);
+
+    });
+
 }
 
-// ============================================================
-// STATS
-// ============================================================
+/* ============================================================
+   STATS
+   ============================================================ */
+
 function updateStatsUI() {
+
   const progress = recalculateProgress();
 
-  const goles = document.getElementById('total-goles');
-  const asistencias = document.getElementById('total-asistencias');
+  setText('total-goles', progress.goles);
+  setText('total-asistencias', progress.asistencias);
 
-  if (goles) goles.innerText = progress.goles;
-  if (asistencias) asistencias.innerText = progress.asistencias;
+  setText(
+    'stat-attr-1',
+    state.attr1 || '-'
+  );
 
-  const statsBMI = document.getElementById('stats-bmi');
-  if (statsBMI) {
-    statsBMI.innerText = state.bmi || '--';
-  }
+  setText(
+    'stat-attr-2',
+    state.attr2 || '-'
+  );
 
-  const a1 = document.getElementById('stat-attr-1');
-  const a2 = document.getElementById('stat-attr-2');
-  const a3 = document.getElementById('stat-attr-3');
-
-  if (a1) a1.innerText = state.attr1 || '-';
-  if (a2) a2.innerText = state.attr2 || '-';
-  if (a3) a3.innerText = state.attr3 || '-';
+  setText(
+    'stat-attr-3',
+    state.attr3 || '-'
+  );
 
   renderPerformanceChart();
+
 }
 
 function renderPerformanceChart() {
-  const container = document.getElementById('chart-container');
+
+  const container =
+    document.getElementById(
+      'chart-container'
+    );
 
   if (!container) return;
 
-  const partidos = state.history.filter(item => item.type === 'Partido');
+  const matches = state.history.filter(
+    item => item.type === 'Partido'
+  );
 
-  if (partidos.length === 0) {
-    container.innerHTML = '<p style="font-size:.75rem;color:#777">Sin datos todavía.</p>';
+  if (matches.length === 0) {
+
+    container.innerHTML = `
+      <div style="
+        color:#777;
+        font-size:.8rem;
+        padding-top:1rem;
+      ">
+        Sin datos todavía.
+      </div>
+    `;
+
     return;
   }
 
-  const goals = partidos.map(item => Number(item.goles));
+  const goals = matches.map(
+    item => Number(item.goles)
+  );
 
   const max = Math.max(...goals, 1);
 
   const width = 320;
-  const height = 120;
+  const height = 140;
   const padding = 20;
 
-  const step = goals.length > 1
-    ? (width - padding * 2) / (goals.length - 1)
-    : 0;
+  const step =
+    goals.length > 1
+      ? (width - padding * 2) /
+        (goals.length - 1)
+      : 0;
 
-  const points = goals.map((goal, index) => {
-    return {
-      x: padding + index * step,
-      y: height - padding - ((goal / max) * (height - padding * 2))
-    };
-  });
+  const points = goals.map(
+    (goal, index) => {
 
-  let path = `M ${points[0].x} ${points[0].y}`;
+      return {
+
+        x: padding + index * step,
+
+        y:
+          height -
+          padding -
+          (
+            (goal / max) *
+            (height - padding * 2)
+          )
+
+      };
+
+    }
+  );
+
+  if (!points.length) return;
+
+  let path =
+    `M ${points[0].x} ${points[0].y}`;
 
   for (let i = 1; i < points.length; i++) {
-    path += ` L ${points[i].x} ${points[i].y}`;
+
+    path += `
+      L ${points[i].x} ${points[i].y}
+    `;
+
   }
 
   container.innerHTML = `
-    <svg viewBox="0 0 ${width} ${height}" width="100%" height="100%">
+
+    <svg
+      viewBox="0 0 ${width} ${height}"
+      width="100%"
+      height="100%"
+    >
+
       <path
         d="${path}"
         fill="none"
         stroke="#34d399"
-        stroke-width="3"
+        stroke-width="4"
         stroke-linecap="round"
       />
 
@@ -605,28 +943,95 @@ function renderPerformanceChart() {
         <circle
           cx="${point.x}"
           cy="${point.y}"
-          r="4"
+          r="5"
           fill="#34d399"
         />
       `).join('')}
+
     </svg>
+
   `;
+
 }
 
-// ============================================================
-// TOAST
-// ============================================================
-function showNotification(text, type = 'success') {
-  const toast = document.getElementById('toast-container');
-  const toastText = document.getElementById('toast-text');
+/* ============================================================
+   TOAST
+   ============================================================ */
 
-  if (!toast || !toastText) return;
+function showNotification(
+  text,
+  type = 'success'
+) {
+
+  const toast =
+    document.getElementById(
+      'toast-container'
+    );
+
+  const toastText =
+    document.getElementById(
+      'toast-text'
+    );
+
+  const toastIcon =
+    document.getElementById(
+      'toast-icon'
+    );
+
+  if (
+    !toast ||
+    !toastText ||
+    !toastIcon
+  ) {
+    return;
+  }
 
   toastText.innerText = text;
+
+  if (type === 'error') {
+
+    toastIcon.innerHTML = `
+      <i
+        data-lucide="circle-alert"
+        style="color:#ef4444;"
+      ></i>
+    `;
+
+  } else {
+
+    toastIcon.innerHTML = `
+      <i
+        data-lucide="badge-check"
+        style="color:#34d399;"
+      ></i>
+    `;
+
+  }
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
 
   toast.classList.add('show');
 
   setTimeout(() => {
+
     toast.classList.remove('show');
+
   }, 2500);
+
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
+function setText(id, value) {
+
+  const el = document.getElementById(id);
+
+  if (el) {
+    el.innerText = value;
+  }
+
 }
