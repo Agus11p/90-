@@ -25,7 +25,13 @@ let state = {
     partidos: 20,
     entrenamientos: 6
   },
-  history: []
+  history: [],
+  objectives: {
+    short: '',
+    mid: '',
+    long: '',
+    reflection: ''
+  }
 };
 
 let activeReg = {
@@ -33,6 +39,8 @@ let activeReg = {
   goles: 0,
   asistencias: 0
 };
+
+let activeGoal = null;
 
 // ============================================================
 // INIT
@@ -117,6 +125,11 @@ function navigate(tab) {
   if (tab === 'stats') updateStatsUI();
 }
 
+function goTo(from, to) {
+  showScreen(to);
+  if (window.lucide) lucide.createIcons();
+}
+
 // ============================================================
 // BMI
 // ============================================================
@@ -124,7 +137,7 @@ function calculateBMI() {
   const heightInput = document.getElementById('height');
   const weightInput = document.getElementById('weight');
   const bmiValue = document.getElementById('bmi-value');
-  const bmiLabel = document.getElementById('bmi-label');
+  const bmiLabel = document.getElementById('bmi-status');
 
   if (!heightInput || !weightInput || !bmiValue || !bmiLabel) return;
 
@@ -164,7 +177,7 @@ function setFoot(side) {
   document.getElementById('foot-right')?.classList.remove('active');
   document.getElementById('foot-left')?.classList.remove('active');
 
-  if (side === 'Diestro') {
+  if (side === 'diestro') {
     document.getElementById('foot-right')?.classList.add('active');
   } else {
     document.getElementById('foot-left')?.classList.add('active');
@@ -202,18 +215,11 @@ function validateProfile() {
   state.attr2 = attr2;
   state.attr3 = attr3 || '—';
 
-  state.profileSetupComplete = true;
-
   saveState();
 
-  document.getElementById('app-nav')?.classList.add('visible');
+  goTo('profile', 'objectives');
 
-  updateDashboardUI();
-  updateStatsUI();
-
-  showScreen('dashboard');
-
-  showNotification('Perfil creado correctamente.');
+  showNotification('Datos guardados correctamente.');
 }
 
 function fillProfileData() {
@@ -239,6 +245,41 @@ function fillProfileData() {
   }
 
   calculateBMI();
+}
+
+// ============================================================
+// OBJECTIVES
+// ============================================================
+function saveObjectivesAndLaunch() {
+  const objShort = document.getElementById('obj-short')?.value.trim();
+  const objMid = document.getElementById('obj-mid')?.value.trim();
+  const objLong = document.getElementById('obj-long')?.value.trim();
+  const reflectionGeneral = document.getElementById('reflection-general')?.value.trim();
+
+  if (!objShort || !objMid || !objLong || !reflectionGeneral) {
+    showNotification('Completá todos los objetivos.', 'error');
+    return;
+  }
+
+  state.objectives = {
+    short: objShort,
+    mid: objMid,
+    long: objLong,
+    reflection: reflectionGeneral
+  };
+
+  state.profileSetupComplete = true;
+
+  saveState();
+
+  document.getElementById('app-nav')?.classList.add('visible');
+
+  updateDashboardUI();
+  updateStatsUI();
+
+  showScreen('dashboard');
+
+  showNotification('¡Perfil completado! Bienvenido a tu camino.');
 }
 
 // ============================================================
@@ -306,6 +347,44 @@ function updateDonut(id, value, target) {
   circle.style.strokeDashoffset = offset;
 }
 
+function editGoal(type) {
+  activeGoal = type;
+  const goalInput = document.getElementById('goal-modal-input');
+  
+  if (goalInput) {
+    goalInput.value = state.goals[type];
+  }
+
+  document.getElementById('goal-modal')?.classList.add('show');
+}
+
+function closeGoalModal(e) {
+  if (!e || e.target.id === 'goal-modal') {
+    document.getElementById('goal-modal')?.classList.remove('show');
+  }
+}
+
+function saveGoalLimit() {
+  if (!activeGoal) return;
+
+  const goalInput = document.getElementById('goal-modal-input');
+  const value = parseInt(goalInput?.value) || 0;
+
+  if (value <= 0) {
+    showNotification('Ingresá un número válido.', 'error');
+    return;
+  }
+
+  state.goals[activeGoal] = value;
+  saveState();
+
+  updateDashboardUI();
+
+  closeGoalModal();
+
+  showNotification('Meta actualizada.');
+}
+
 // ============================================================
 // REGISTER
 // ============================================================
@@ -331,18 +410,26 @@ function closeRegisterModal(e) {
   }
 }
 
+function closeSheet(sheetId) {
+  document.getElementById(sheetId)?.classList.remove('show');
+}
+
 function setRegType(type) {
   activeReg.type = type;
 
-  document.getElementById('reg-training')?.classList.remove('active');
-  document.getElementById('reg-match')?.classList.remove('active');
+  const regTraining = document.getElementById('reg-training');
+  const regMatch = document.getElementById('reg-match');
+  const matchFields = document.getElementById('match-fields');
+
+  if (regTraining) regTraining.classList.remove('active');
+  if (regMatch) regMatch.classList.remove('active');
 
   if (type === 'Entrenamiento') {
-    document.getElementById('reg-training')?.classList.add('active');
-    document.getElementById('match-fields').style.display = 'none';
+    if (regTraining) regTraining.classList.add('active');
+    if (matchFields) matchFields.style.display = 'none';
   } else {
-    document.getElementById('reg-match')?.classList.add('active');
-    document.getElementById('match-fields').style.display = 'block';
+    if (regMatch) regMatch.classList.add('active');
+    if (matchFields) matchFields.style.display = 'block';
   }
 }
 
@@ -450,6 +537,11 @@ function updateStatsUI() {
 
   if (goles) goles.innerText = progress.goles;
   if (asistencias) asistencias.innerText = progress.asistencias;
+
+  const statsBMI = document.getElementById('stats-bmi');
+  if (statsBMI) {
+    statsBMI.innerText = state.bmi || '--';
+  }
 
   const a1 = document.getElementById('stat-attr-1');
   const a2 = document.getElementById('stat-attr-2');
