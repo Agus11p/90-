@@ -1,248 +1,540 @@
-// ==========================================
-// ESTADO GLOBAL DE LA APLICACIÓN
-// ==========================================
+/* ============================================================
+   CAMINO A PRIMERA — main.js
+   ============================================================ */
+
+'use strict';
+
+// ============================================================
+// STATE
+// ============================================================
 let state = {
-    profileSetupComplete: false,
-    user: {
-        name: "",
-        position: "",
-        club: ""
-    },
-    streak: 0,
-    dailyProgress: 0, // Porcentaje de 0 a 100
-    weeklyHistory: [20, 45, 28, 60, 55, 70, 0] // Datos de lunes a domingo para el gráfico
+  profileSetupComplete: false,
+  playerName: '',
+  club: '',
+  position: '',
+  height: '',
+  weight: '',
+  bmi: '',
+  footSide: 'Diestro',
+  attr1: '',
+  attr2: '',
+  attr3: '',
+  goals: {
+    goles: 10,
+    asistencias: 5,
+    partidos: 20,
+    entrenamientos: 6
+  },
+  history: []
 };
 
-// ==========================================
-// INICIALIZACIÓN (Al cargar el DOM)
-// ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-    loadState();
+let activeReg = {
+  type: 'Entrenamiento',
+  goles: 0,
+  asistencias: 0
+};
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.lucide) lucide.createIcons();
+
+  loadState();
+
+  const heightInput = document.getElementById('height');
+  const weightInput = document.getElementById('weight');
+
+  if (heightInput) {
+    heightInput.addEventListener('input', calculateBMI);
+  }
+
+  if (weightInput) {
+    weightInput.addEventListener('input', calculateBMI);
+  }
 });
 
-// Cargar datos desde LocalStorage si existen
+// ============================================================
+// STORAGE
+// ============================================================
+function saveState() {
+  localStorage.setItem('camino_primera_v2', JSON.stringify(state));
+}
+
 function loadState() {
-    const savedState = localStorage.getItem("caminoAPrimera_state");
-    if (savedState) {
-        state = JSON.parse(savedState);
-    }
+  const saved = localStorage.getItem('camino_primera_v2');
+
+  if (!saved) return;
+
+  try {
+    state = JSON.parse(saved);
 
     if (state.profileSetupComplete) {
-        // Si el usuario ya se registró, salteamos la bienvenida
-        document.getElementById("screen-welcome").classList.remove("active");
-        document.getElementById("app-container").classList.add("app-layout-visible"); // Ajuste de clase contenedora si aplica
-        
-        // Forzar la vista de la pestaña de inicio
-        switchTab("home");
-        updateUI();
+      fillProfileData();
+      showScreen('dashboard');
+      document.getElementById('app-nav')?.classList.add('visible');
+      updateDashboardUI();
+      updateStatsUI();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// ============================================================
+// SCREEN CONTROL
+// ============================================================
+function showScreen(name) {
+  const screens = document.querySelectorAll('.screen');
+
+  screens.forEach(screen => {
+    screen.classList.remove('active');
+  });
+
+  const target = document.getElementById(`screen-${name}`);
+
+  if (target) {
+    target.classList.add('active');
+  }
+}
+
+function navigate(tab) {
+  const map = {
+    dash: 'dashboard',
+    stats: 'stats',
+    settings: 'settings'
+  };
+
+  showScreen(map[tab]);
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  document.getElementById(`nav-${tab}`)?.classList.add('active');
+
+  if (tab === 'dash') updateDashboardUI();
+  if (tab === 'stats') updateStatsUI();
+}
+
+// ============================================================
+// BMI
+// ============================================================
+function calculateBMI() {
+  const heightInput = document.getElementById('height');
+  const weightInput = document.getElementById('weight');
+  const bmiValue = document.getElementById('bmi-value');
+  const bmiLabel = document.getElementById('bmi-label');
+
+  if (!heightInput || !weightInput || !bmiValue || !bmiLabel) return;
+
+  const height = parseFloat(heightInput.value);
+  const weight = parseFloat(weightInput.value);
+
+  if (!height || !weight) {
+    bmiValue.innerText = '--';
+    bmiLabel.innerText = 'Completá altura y peso';
+    return;
+  }
+
+  const meters = height / 100;
+  const bmi = (weight / (meters * meters)).toFixed(1);
+
+  state.bmi = bmi;
+
+  bmiValue.innerText = bmi;
+
+  let label = 'Normal';
+
+  if (bmi < 18.5) {
+    label = 'Bajo peso';
+  } else if (bmi >= 25) {
+    label = 'Peso elevado';
+  }
+
+  bmiLabel.innerText = label;
+}
+
+// ============================================================
+// PROFILE
+// ============================================================
+function setFoot(side) {
+  state.footSide = side;
+
+  document.getElementById('foot-right')?.classList.remove('active');
+  document.getElementById('foot-left')?.classList.remove('active');
+
+  if (side === 'Diestro') {
+    document.getElementById('foot-right')?.classList.add('active');
+  } else {
+    document.getElementById('foot-left')?.classList.add('active');
+  }
+}
+
+function validateProfile() {
+  const playerName = document.getElementById('player-name')?.value.trim();
+  const club = document.getElementById('club-name')?.value.trim();
+  const position = document.getElementById('position')?.value;
+  const height = document.getElementById('height')?.value;
+  const weight = document.getElementById('weight')?.value;
+
+  const attr1 = document.getElementById('attr-1')?.value;
+  const attr2 = document.getElementById('attr-2')?.value;
+  const attr3 = document.getElementById('attr-3')?.value;
+
+  if (!playerName || !club || !position || !height || !weight || !attr1 || !attr2) {
+    showNotification('Completá todos los datos obligatorios.', 'error');
+    return;
+  }
+
+  if (attr1 === attr2 || (attr3 && attr1 === attr3) || (attr3 && attr2 === attr3)) {
+    showNotification('No repitas habilidades.', 'error');
+    return;
+  }
+
+  state.playerName = playerName;
+  state.club = club;
+  state.position = position;
+  state.height = height;
+  state.weight = weight;
+
+  state.attr1 = attr1;
+  state.attr2 = attr2;
+  state.attr3 = attr3 || '—';
+
+  state.profileSetupComplete = true;
+
+  saveState();
+
+  document.getElementById('app-nav')?.classList.add('visible');
+
+  updateDashboardUI();
+  updateStatsUI();
+
+  showScreen('dashboard');
+
+  showNotification('Perfil creado correctamente.');
+}
+
+function fillProfileData() {
+  const ids = {
+    'player-name': state.playerName,
+    'club-name': state.club,
+    'height': state.height,
+    'weight': state.weight
+  };
+
+  Object.keys(ids).forEach(id => {
+    const el = document.getElementById(id);
+
+    if (el) {
+      el.value = ids[id];
+    }
+  });
+
+  const position = document.getElementById('position');
+
+  if (position) {
+    position.value = state.position;
+  }
+
+  calculateBMI();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function updateDashboardUI() {
+  const playerName = document.getElementById('dash-player-name');
+  const playerClub = document.getElementById('dash-player-club');
+
+  if (playerName) {
+    playerName.innerText = state.playerName || 'Jugador';
+  }
+
+  if (playerClub) {
+    playerClub.innerText = `${state.position} • ${state.club}`;
+  }
+
+  const progress = recalculateProgress();
+
+  updateDonut('goles', progress.goles, state.goals.goles);
+  updateDonut('asistencias', progress.asistencias, state.goals.asistencias);
+  updateDonut('partidos', progress.partidos, state.goals.partidos);
+  updateDonut('entrenamientos', progress.entrenamientos, state.goals.entrenamientos);
+
+  renderFeed();
+}
+
+function recalculateProgress() {
+  const result = {
+    goles: 0,
+    asistencias: 0,
+    partidos: 0,
+    entrenamientos: 0
+  };
+
+  state.history.forEach(item => {
+    if (item.type === 'Partido') {
+      result.goles += Number(item.goles || 0);
+      result.asistencias += Number(item.asistencias || 0);
+      result.partidos += 1;
     } else {
-        // Si no hay perfil, nos aseguramos de mostrar la bienvenida
-        document.getElementById("screen-welcome").classList.add("active");
-        document.getElementById("app-container").style.display = "none";
+      result.entrenamientos += 1;
     }
+  });
+
+  return result;
 }
 
-// Guardar el estado actual en LocalStorage
-function saveState() {
-    localStorage.setItem("caminoAPrimera_state", JSON.stringify(state));
+function updateDonut(id, value, target) {
+  const number = document.getElementById(`num-${id}`);
+  const goal = document.getElementById(`goal-${id}`);
+  const circle = document.getElementById(`donut-${id}`);
+
+  if (!number || !goal || !circle) return;
+
+  number.innerText = value;
+  goal.innerText = `/${target}`;
+
+  const radius = 34;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min((value / target) * 100, 100);
+  const offset = circumference - (progress / 100) * circumference;
+
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = offset;
 }
 
-// ==========================================
-// CONTROL DE MODALES (Bottom Sheets)
-// ==========================================
+// ============================================================
+// REGISTER
+// ============================================================
 function openRegisterModal() {
-    const modal = document.getElementById("register-modal");
-    modal.classList.add("active");
+  activeReg = {
+    type: 'Entrenamiento',
+    goles: 0,
+    asistencias: 0
+  };
+
+  document.getElementById('register-modal')?.classList.add('show');
+
+  document.getElementById('reg-reflection').value = '';
+  document.getElementById('reg-val-goles').innerText = '0';
+  document.getElementById('reg-val-asistencias').innerText = '0';
+
+  setRegType('Entrenamiento');
 }
 
-function closeRegisterModal(event) {
-    // Si viene de un click directo en el overlay oscuro, se cierra
-    const modal = document.getElementById("register-modal");
-    modal.classList.remove("active");
+function closeRegisterModal(e) {
+  if (!e || e.target.id === 'register-modal') {
+    document.getElementById('register-modal')?.classList.remove('show');
+  }
 }
 
-// ==========================================
-// REGISTRO DE USUARIO
-// ==========================================
-function handleRegister(event) {
-    event.preventDefault();
+function setRegType(type) {
+  activeReg.type = type;
 
-    // Capturar datos del formulario
-    const nameInput = document.getElementById("reg-name").value.trim();
-    const positionInput = document.getElementById("reg-position").value;
-    const clubInput = document.getElementById("reg-club").value.trim();
+  document.getElementById('reg-training')?.classList.remove('active');
+  document.getElementById('reg-match')?.classList.remove('active');
 
-    if (!nameInput || !positionInput || !clubInput) return;
-
-    // Actualizar el estado
-    state.user.name = nameInput;
-    state.user.position = positionInput;
-    state.user.club = clubInput;
-    state.profileSetupComplete = true;
-    state.streak = 1; // Arranca con el primer día de racha
-    state.dailyProgress = 0;
-
-    saveState();
-
-    // Transición visual de pantallas
-    document.getElementById("screen-welcome").classList.remove("active");
-    document.getElementById("register-modal").classList.remove("active");
-    
-    // Mostramos el contenedor de la app principal
-    const appContainer = document.getElementById("app-container");
-    appContainer.style.display = "flex"; 
-
-    switchTab("home");
-    updateUI();
+  if (type === 'Entrenamiento') {
+    document.getElementById('reg-training')?.classList.add('active');
+    document.getElementById('match-fields').style.display = 'none';
+  } else {
+    document.getElementById('reg-match')?.classList.add('active');
+    document.getElementById('match-fields').style.display = 'block';
+  }
 }
 
-// ==========================================
-// NAVEGACIÓN ENTRE TABS
-// ==========================================
-function switchTab(tabId) {
-    // 1. Ocultar todas las pantallas internas de la app
-    const screens = ["home", "training", "profile"];
-    screens.forEach(id => {
-        const screenEl = document.getElementById(`screen-${id}`);
-        if (screenEl) screenEl.classList.remove("active");
-    });
+function adjustRegCounter(type, amount) {
+  if (type === 'goles') {
+    activeReg.goles = Math.max(0, activeReg.goles + amount);
+    document.getElementById('reg-val-goles').innerText = activeReg.goles;
+  }
 
-    // 2. Mostrar la pantalla seleccionada
-    const activeScreen = document.getElementById(`screen-${tabId}`);
-    if (activeScreen) activeScreen.classList.add("active");
-
-    // 3. Actualizar estado visual de los botones de la barra de navegación
-    const navItems = document.querySelectorAll(".bottom-nav .nav-item");
-    navItems.forEach(item => item.classList.remove("active"));
-
-    // Mapeo simple para identificar cuál botón activar según el id de la pantalla
-    const indexMap = { "home": 0, "training": 1, "profile": 2 };
-    if (navItems[indexMap[tabId]]) {
-        navItems[indexMap[tabId]].classList.add("active");
-    }
+  if (type === 'asistencias') {
+    activeReg.asistencias = Math.max(0, activeReg.asistencias + amount);
+    document.getElementById('reg-val-asistencias').innerText = activeReg.asistencias;
+  }
 }
 
-// ==========================================
-// ACTUALIZACIÓN DE LA INTERFAZ DE USUARIO (UI)
-// ==========================================
-function updateUI() {
-    // Header superior
-    document.getElementById("header-username").textContent = state.user.name || "Jugador";
-    document.getElementById("streak-count").textContent = state.streak;
-    
-    // Nivel basado en la racha (ejemplo simple: cada 5 días sube un nivel)
-    const currentLevel = Math.max(1, Math.floor(state.streak / 5) + 1);
-    document.getElementById("header-level").textContent = `Nivel ${currentLevel}`;
+function saveDailyLog() {
+  const reflection = document.getElementById('reg-reflection')?.value.trim();
 
-    // Pantalla de Perfil
-    document.getElementById("profile-name-display").textContent = state.user.name;
-    document.getElementById("profile-position").textContent = state.user.position;
-    document.getElementById("profile-club").textContent = state.user.club;
+  if (!reflection) {
+    showNotification('Escribí una reflexión.', 'error');
+    return;
+  }
 
-    // Renderizar los gráficos con los datos actuales
-    updateDonutChart(state.dailyProgress);
-    renderLineChart();
+  const date = new Date();
+
+  state.history.push({
+    id: Date.now(),
+    type: activeReg.type,
+    goles: activeReg.goles,
+    asistencias: activeReg.asistencias,
+    reflection,
+    date: `${date.getDate()}/${date.getMonth() + 1}`
+  });
+
+  saveState();
+
+  updateDashboardUI();
+  updateStatsUI();
+
+  closeRegisterModal();
+
+  showNotification('Registro guardado.');
 }
 
-// ==========================================
-// LÓGICA DE GRÁFICOS DINÁMICOS (SVG)
-// ==========================================
+// ============================================================
+// FEED
+// ============================================================
+function renderFeed() {
+  const feed = document.getElementById('journal-feed');
 
-// 1. Gráfico circular de Progreso Diario
-function updateDonutChart(percentage) {
-    const circleFill = document.querySelector(".circle-fill");
-    const percentageText = document.getElementById("chart-percentage");
-    
-    if (!circleFill || !percentageText) return;
+  if (!feed) return;
 
-    // El radio del círculo en el HTML es 34. La circunferencia es 2 * PI * r 
-    const radius = 34;
-    const circumference = 2 * Math.PI * radius; // Aprox 213.63
-
-    // Configurar las propiedades base del SVG para el cálculo del trazo
-    circleFill.style.strokeDasharray = circumference;
-
-    // Calcular el desplazamiento (offset) inverso para rellenar la barra
-    const offset = circumference - (percentage / 100) * circumference;
-    circleFill.style.strokeDashoffset = offset;
-
-    // Actualizar el texto del centro
-    percentageText.textContent = `${percentage}%`;
-}
-
-// 2. Gráfico de líneas (Evolución Semanal) usando SVG dinámico
-function renderLineChart() {
-    const container = document.getElementById("performance-graph-container");
-    if (!container) return;
-
-    const data = state.weeklyHistory;
-    const width = 320;
-    const height = 120;
-    const padding = 20;
-
-    // Calcular las posiciones de los puntos (X, Y) dentro del contenedor SVG
-    const points = data.map((value, index) => {
-        const x = padding + (index * (width - padding * 2) / (data.length - 1));
-        // Invertimos la Y porque en SVG el 0,0 es la esquina superior izquierda
-        const y = (height - padding) - (value * (height - padding * 2) / 100);
-        return { x, y };
-    });
-
-    // Construir la cadena de comandos del Path SVG
-    let pathD = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 1; i < points.length; i++) {
-        pathD += ` L ${points[i].x} ${points[i].y}`;
-    }
-
-    // Estructura interna del componente visual gráfico
-    const svgHTML = `
-        <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" style="overflow: visible;">
-            <!-- Líneas de cuadrícula de fondo -->
-            <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border-color, #222)" stroke-width="1" />
-            <line x1="${padding}" y1="${padding}" x2="${width - padding}" y2="${padding}" stroke="var(--border-color, #222)" stroke-width="1" stroke-dasharray="4" />
-            
-            <!-- Línea de datos (Evolución) -->
-            <path d="${pathD}" fill="none" stroke="url(#gradient-line)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-            
-            <!-- Puntos de datos individuales -->
-            ${points.map((p, i) => `
-                <circle cx="${p.x}" cy="${p.y}" r="4" fill="${i === data.length - 1 ? 'var(--primary-color, #00ff66)' : '#fff'}" />
-            `).join('')}
-            
-            <!-- Gradiente lineal para la línea (Mapea con los estilos del CSS si usás variables) -->
-            <defs>
-                <linearGradient id="gradient-line" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#8b5cf6" /> <!-- Violeta -->
-                    <stop offset="100%" stop-color="#00ff66" /> <!-- Verde flúor -->
-                </linearGradient>
-            </defs>
-        </svg>
+  if (state.history.length === 0) {
+    feed.innerHTML = `
+      <div class="feed-empty">
+        Todavía no registraste ningún día.
+      </div>
     `;
 
-    container.innerHTML = svgHTML;
+    return;
+  }
+
+  feed.innerHTML = '';
+
+  [...state.history].reverse().forEach(item => {
+    const card = document.createElement('div');
+
+    card.className = 'feed-card';
+
+    card.innerHTML = `
+      <div class="feed-card-header">
+        <span class="feed-card-type ${item.type === 'Partido' ? 'match' : 'training'}">
+          ${item.type}
+        </span>
+
+        <span class="feed-card-date">
+          ${item.date}
+        </span>
+      </div>
+
+      ${item.type === 'Partido' ? `
+        <div class="feed-card-stats">
+          <span class="stat-pill green">⚽ ${item.goles}</span>
+          <span class="stat-pill purple">🎯 ${item.asistencias}</span>
+        </div>
+      ` : ''}
+
+      <p class="feed-card-reflection">
+        "${item.reflection}"
+      </p>
+    `;
+
+    feed.appendChild(card);
+  });
 }
 
-// ==========================================
-// SIMULACIÓN DE ACCIONES DE ENTRENAMIENTO
-// ==========================================
-function startTraining(type) {
-    // Al iniciar/completar un entrenamiento, subimos el progreso del día
-    // Sumamos un 50% por cada entrenamiento hecho (máximo 100%)
-    state.dailyProgress = Math.min(100, state.dailyProgress + 50);
+// ============================================================
+// STATS
+// ============================================================
+function updateStatsUI() {
+  const progress = recalculateProgress();
 
-    // Si completó la barra al 100%, actualizamos la posición del domingo en el gráfico histórico
-    if (state.dailyProgress === 100) {
-        state.weeklyHistory[state.weeklyHistory.length - 1] = 100;
-    } else {
-        state.weeklyHistory[state.weeklyHistory.length - 1] = state.dailyProgress;
-    }
+  const goles = document.getElementById('total-goles');
+  const asistencias = document.getElementById('total-asistencias');
 
-    saveState();
-    updateUI();
+  if (goles) goles.innerText = progress.goles;
+  if (asistencias) asistencias.innerText = progress.asistencias;
 
-    // Feedback visual rápido
-    alert(`¡Entrenamiento de ${type.toUpperCase()} completado! Tu progreso diario subió.`);
-    
-    // Volvemos automáticamente a la pantalla de inicio para ver el impacto en los gráficos
-    switchTab("home");
+  const a1 = document.getElementById('stat-attr-1');
+  const a2 = document.getElementById('stat-attr-2');
+  const a3 = document.getElementById('stat-attr-3');
+
+  if (a1) a1.innerText = state.attr1 || '-';
+  if (a2) a2.innerText = state.attr2 || '-';
+  if (a3) a3.innerText = state.attr3 || '-';
+
+  renderPerformanceChart();
+}
+
+function renderPerformanceChart() {
+  const container = document.getElementById('chart-container');
+
+  if (!container) return;
+
+  const partidos = state.history.filter(item => item.type === 'Partido');
+
+  if (partidos.length === 0) {
+    container.innerHTML = '<p style="font-size:.75rem;color:#777">Sin datos todavía.</p>';
+    return;
+  }
+
+  const goals = partidos.map(item => Number(item.goles));
+
+  const max = Math.max(...goals, 1);
+
+  const width = 320;
+  const height = 120;
+  const padding = 20;
+
+  const step = goals.length > 1
+    ? (width - padding * 2) / (goals.length - 1)
+    : 0;
+
+  const points = goals.map((goal, index) => {
+    return {
+      x: padding + index * step,
+      y: height - padding - ((goal / max) * (height - padding * 2))
+    };
+  });
+
+  let path = `M ${points[0].x} ${points[0].y}`;
+
+  for (let i = 1; i < points.length; i++) {
+    path += ` L ${points[i].x} ${points[i].y}`;
+  }
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" width="100%" height="100%">
+      <path
+        d="${path}"
+        fill="none"
+        stroke="#34d399"
+        stroke-width="3"
+        stroke-linecap="round"
+      />
+
+      ${points.map(point => `
+        <circle
+          cx="${point.x}"
+          cy="${point.y}"
+          r="4"
+          fill="#34d399"
+        />
+      `).join('')}
+    </svg>
+  `;
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showNotification(text, type = 'success') {
+  const toast = document.getElementById('toast-container');
+  const toastText = document.getElementById('toast-text');
+
+  if (!toast || !toastText) return;
+
+  toastText.innerText = text;
+
+  toast.classList.add('show');
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2500);
 }
