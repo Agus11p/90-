@@ -219,7 +219,7 @@
                         id="bmi-status"
                         style="
                             font-size:.75rem;
-                            color:var(--color-text-sub);
+                            color:var(--sub);
                             font-weight:700;
                         "
                     >
@@ -232,7 +232,7 @@
                     style="
                         width:28px;
                         height:28px;
-                        color:var(--color-neon-green);
+                        color:var(--green);
                     "
                 ></i>
             </div>
@@ -717,6 +717,39 @@
 
         </div>
 
+        <div class="stats-block">
+
+            <div class="stats-block-label">
+                Habilidades
+            </div>
+
+            <div style="margin-top:1rem;">
+                <div class="attr-row">
+                    <div class="attr-label">Habilidad 1</div>
+                    <div id="stat-attr-1" class="attr-value-white">-</div>
+                </div>
+                <div class="attr-row">
+                    <div class="attr-label">Habilidad 2</div>
+                    <div id="stat-attr-2" class="attr-value-white">-</div>
+                </div>
+                <div class="attr-row">
+                    <div class="attr-label">Habilidad 3</div>
+                    <div id="stat-attr-3" class="attr-value-white">-</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="stats-block">
+
+            <div class="stats-block-label">
+                Gráfico de rendimiento
+            </div>
+
+            <div id="chart-container"></div>
+
+        </div>
+
     </section>
 
     <!-- ========================================================= -->
@@ -830,6 +863,7 @@
             >
 
                 <button
+                    id="reg-training"
                     class="toggle-btn active"
                     onclick="setRegType('Entrenamiento')"
                 >
@@ -837,6 +871,7 @@
                 </button>
 
                 <button
+                    id="reg-match"
                     class="toggle-btn"
                     onclick="setRegType('Partido')"
                 >
@@ -845,75 +880,80 @@
 
             </div>
 
-            <!-- GOLES -->
-            <div
-                class="counter-row"
-                style="margin-bottom:.75rem;"
-            >
+            <!-- MATCH FIELDS (GOLES Y ASISTENCIAS) -->
+            <div id="match-fields" style="display: none;">
 
-                <div class="counter-label">
-                    Goles
-                </div>
+                <!-- GOLES -->
+                <div
+                    class="counter-row"
+                    style="margin-bottom:.75rem;"
+                >
 
-                <div class="counter-controls">
-
-                    <button
-                        class="counter-btn"
-                        onclick="adjustRegCounter('goles',-1)"
-                    >
-                        -
-                    </button>
-
-                    <div
-                        id="reg-val-goles"
-                        class="counter-value"
-                    >
-                        0
+                    <div class="counter-label">
+                        Goles
                     </div>
 
-                    <button
-                        class="counter-btn"
-                        onclick="adjustRegCounter('goles',1)"
-                    >
-                        +
-                    </button>
+                    <div class="counter-controls">
 
-                </div>
+                        <button
+                            class="counter-btn"
+                            onclick="adjustRegCounter('goles',-1)"
+                        >
+                            -
+                        </button>
 
-            </div>
+                        <div
+                            id="reg-val-goles"
+                            class="counter-value"
+                        >
+                            0
+                        </div>
 
-            <!-- ASIST -->
-            <div
-                class="counter-row"
-                style="margin-bottom:1rem;"
-            >
+                        <button
+                            class="counter-btn"
+                            onclick="adjustRegCounter('goles',1)"
+                        >
+                            +
+                        </button>
 
-                <div class="counter-label">
-                    Asistencias
-                </div>
-
-                <div class="counter-controls">
-
-                    <button
-                        class="counter-btn"
-                        onclick="adjustRegCounter('asistencias',-1)"
-                    >
-                        -
-                    </button>
-
-                    <div
-                        id="reg-val-asistencias"
-                        class="counter-value"
-                    >
-                        0
                     </div>
 
-                    <button
-                        class="counter-btn"
-                        onclick="adjustRegCounter('asistencias',1)"
-                    >
-                        +
-                    </button>
+                </div>
+
+                <!-- ASIST -->
+                <div
+                    class="counter-row"
+                    style="margin-bottom:1rem;"
+                >
+
+                    <div class="counter-label">
+                        Asistencias
+                    </div>
+
+                    <div class="counter-controls">
+
+                        <button
+                            class="counter-btn"
+                            onclick="adjustRegCounter('asistencias',-1)"
+                        >
+                            -
+                        </button>
+
+                        <div
+                            id="reg-val-asistencias"
+                            class="counter-value"
+                        >
+                            0
+                        </div>
+
+                        <button
+                            class="counter-btn"
+                            onclick="adjustRegCounter('asistencias',1)"
+                        >
+                            +
+                        </button>
+
+                    </div>
 
                 </div>
 
