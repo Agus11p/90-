@@ -103,6 +103,16 @@ button {
   transform: translateX(0);
 }
 
+.screen.hidden-right {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(30px);
+}
+
+.screen.no-scrollbar {
+  scrollbar-width: none;
+}
+
 /* ============================================================
    WELCOME
    ============================================================ */
@@ -114,14 +124,14 @@ button {
   justify-content: flex-end;
 }
 
-.logo-area {
+.welcome-logo-wrap {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.logo-circle {
+.welcome-logo-circle {
   width: 150px;
   height: 150px;
   border-radius: 50%;
@@ -140,7 +150,7 @@ button {
     0 0 90px rgba(167,139,250,.05);
 }
 
-.logo-circle svg {
+.welcome-logo-circle i {
   width: 58px;
   height: 58px;
   color: white;
@@ -161,6 +171,15 @@ button {
   margin-bottom: 1rem;
 }
 
+.badge-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: .4rem;
+}
+
 .welcome-title {
   font-size: 3rem;
   line-height: .95;
@@ -170,10 +189,11 @@ button {
   margin-bottom: 1rem;
 }
 
-.gradient-text {
+.welcome-gradient {
   background: linear-gradient(to right, var(--green), var(--purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .welcome-subtitle {
@@ -217,7 +237,7 @@ button {
   transform: translateY(-2px);
 }
 
-.btn-primary svg {
+.btn-primary i {
   width: 18px;
   height: 18px;
 }
@@ -237,6 +257,36 @@ button {
   cursor: pointer;
 }
 
+.btn-green {
+  width: 100%;
+  height: 56px;
+
+  border-radius: 20px;
+
+  background: linear-gradient(135deg, var(--green), #10b981);
+
+  color: #04140d;
+  font-weight: 900;
+  font-size: .85rem;
+  letter-spacing: .08em;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+
+  cursor: pointer;
+
+  transition: .25s ease;
+
+  box-shadow:
+    0 15px 40px rgba(52,211,153,.22);
+}
+
+.btn-green:hover {
+  transform: translateY(-2px);
+}
+
 /* ============================================================
    SCREENS
    ============================================================ */
@@ -244,6 +294,7 @@ button {
 #screen-profile,
 #screen-dashboard,
 #screen-stats,
+#screen-objectives,
 #screen-settings {
   padding: 1.5rem;
   overflow-y: auto;
@@ -253,6 +304,7 @@ button {
 #screen-profile::-webkit-scrollbar,
 #screen-dashboard::-webkit-scrollbar,
 #screen-stats::-webkit-scrollbar,
+#screen-objectives::-webkit-scrollbar,
 #screen-settings::-webkit-scrollbar {
   display: none;
 }
@@ -262,6 +314,9 @@ button {
    ============================================================ */
 
 .screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 1.8rem;
 }
 
@@ -275,6 +330,21 @@ button {
   color: var(--sub);
   font-size: .85rem;
   margin-top: .4rem;
+}
+
+.step-badge {
+  padding: .45rem .8rem;
+  border-radius: 999px;
+
+  background: rgba(52,211,153,.12);
+  border: 1px solid rgba(52,211,153,.2);
+
+  color: var(--green);
+
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  white-space: nowrap;
 }
 
 /* ============================================================
@@ -316,6 +386,11 @@ button {
   transition: .2s ease;
 }
 
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: rgba(255,255,255,.5);
+}
+
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
@@ -325,6 +400,26 @@ button {
 
 .form-textarea {
   resize: none;
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap i {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--sub);
+  width: 18px;
+  height: 18px;
+}
+
+.form-select {
+  appearance: none;
+  padding-right: 2.5rem;
 }
 
 /* ============================================================
@@ -351,6 +446,10 @@ button {
   cursor: pointer;
 
   transition: .2s ease;
+}
+
+.toggle-btn:active {
+  transform: scale(0.98);
 }
 
 .toggle-btn.active {
@@ -430,6 +529,18 @@ button {
 
   font-size: .7rem;
   font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.legend-badge.hidden {
+  display: none;
+}
+
+.legend-badge i {
+  width: 16px;
+  height: 16px;
 }
 
 /* ============================================================
@@ -455,11 +566,16 @@ button {
   text-align: center;
 
   transition: .25s ease;
+  cursor: pointer;
 }
 
 .stat-box:hover {
   transform: translateY(-3px);
   border-color: rgba(255,255,255,.08);
+}
+
+.stat-box:active {
+  transform: translateY(-1px);
 }
 
 .stat-box-label {
@@ -545,11 +661,32 @@ button {
   margin-bottom: 1.6rem;
 
   cursor: pointer;
+  transition: .2s ease;
+}
+
+.register-trigger:active {
+  transform: scale(0.98);
 }
 
 .register-trigger-title {
   font-size: 1rem;
   font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.register-trigger-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
 }
 
 .register-trigger-sub {
@@ -558,9 +695,25 @@ button {
   font-size: .8rem;
 }
 
+.register-trigger-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-trigger-icon i {
+  width: 20px;
+  height: 20px;
+}
+
 /* ============================================================
    FEED
    ============================================================ */
+
+.feed-header {
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+}
 
 .feed-title {
   color: var(--sub);
@@ -703,6 +856,11 @@ button {
   margin-top: 1rem;
 }
 
+#chart-container svg {
+  width: 100%;
+  height: 100%;
+}
+
 .attr-row {
   display: flex;
   justify-content: space-between;
@@ -718,6 +876,7 @@ button {
 
 .attr-label {
   color: var(--sub);
+  font-size: .85rem;
 }
 
 .attr-value-green {
@@ -776,16 +935,17 @@ button {
   cursor: pointer;
 
   transition: .2s ease;
+  font-size: .65rem;
+  font-weight: 800;
 }
 
-.nav-btn svg {
+.nav-btn i {
   width: 21px;
   height: 21px;
 }
 
-.nav-btn span {
-  font-size: .7rem;
-  font-weight: 800;
+.nav-btn:active {
+  transform: scale(0.95);
 }
 
 .nav-btn.active {
@@ -827,9 +987,12 @@ button {
   border-radius: 34px 34px 0 0;
 
   padding: 1.5rem;
+  padding-bottom: 2rem;
 
   transform: translateY(100%);
   transition: .3s ease;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 .sheet-overlay.show .sheet-panel {
@@ -864,6 +1027,16 @@ button {
   justify-content: center;
 
   cursor: pointer;
+  transition: .2s ease;
+}
+
+.sheet-close:hover {
+  background: rgba(255,255,255,.1);
+}
+
+.sheet-close i {
+  width: 20px;
+  height: 20px;
 }
 
 /* ============================================================
@@ -908,6 +1081,15 @@ button {
   font-weight: 800;
 
   cursor: pointer;
+  transition: .2s ease;
+}
+
+.counter-btn:hover {
+  background: rgba(255,255,255,.12);
+}
+
+.counter-btn:active {
+  transform: scale(0.95);
 }
 
 .counter-value {
@@ -915,6 +1097,7 @@ button {
   text-align: center;
 
   font-weight: 900;
+  font-size: 1.1rem;
 }
 
 /* ============================================================
@@ -933,6 +1116,7 @@ button {
   transition: .25s ease;
 
   z-index: 120;
+  pointer-events: none;
 }
 
 #toast-container.show {
@@ -944,7 +1128,7 @@ button {
   background: rgba(20,20,24,.95);
   border: 1px solid rgba(255,255,255,.06);
 
-  padding: .9rem 1rem;
+  padding: .9rem 1.2rem;
 
   border-radius: 18px;
 
@@ -953,9 +1137,66 @@ button {
   gap: .7rem;
 
   min-width: 260px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.3);
+}
+
+#toast-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 #toast-text {
   font-size: .82rem;
   font-weight: 700;
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+
+.danger-row {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.05);
+
+  border-radius: 28px;
+
+  padding: 1.3rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.danger-row:hover {
+  border-color: rgba(239,68,68,.2);
+  background: rgba(239,68,68,.05);
+}
+
+.danger-row-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.danger-row-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--danger);
+  flex-shrink: 0;
+}
+
+.danger-row-title {
+  font-weight: 900;
+  color: white;
+}
+
+.danger-row-sub {
+  color: var(--sub);
+  font-size: .8rem;
+  margin-top: .2rem;
 }
