@@ -1,993 +1,167 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camino a Primera</title>
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="styles.css" />
-
-    <!-- LUCIDE -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- CONFETTI -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <!-- Vinculación del archivo CSS -->
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-<div id="app-wrapper">
-
-    <!-- ========================================================= -->
-    <!-- AMBIENT -->
-    <!-- ========================================================= -->
-    <div class="ambient-glow ambient-top-left"></div>
-    <div class="ambient-glow-2 ambient-bottom-right"></div>
-
-    <!-- ========================================================= -->
-    <!-- TOAST -->
-    <!-- ========================================================= -->
-    <div id="toast-container">
-        <div class="toast-inner">
-            <div id="toast-icon"></div>
-            <div id="toast-text"></div>
+    <!-- 1. PANTALLA DE BIENVENIDA (Activa por defecto si no hay perfil guardado) -->
+    <div id="screen-welcome" class="screen active">
+        <div class="welcome-container">
+            <div class="brand-logo">⚽</div>
+            <h1>Camino a Primera</h1>
+            <p>Tu camino al fútbol profesional empieza acá. Entrená, medí tu rendimiento diario y superá tus propios límites.</p>
+            <button class="btn-primary" onclick="openRegisterModal()">Comenzar Desafío</button>
         </div>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- WELCOME -->
-    <!-- ========================================================= -->
-    <section id="screen-welcome" class="screen active">
-
-        <div class="welcome-logo-wrap">
-            <div class="welcome-logo-circle">
-                <i data-lucide="shield"></i>
+    <!-- 2. CONTENEDOR PRINCIPAL DE LA APP (Se muestra al completar el registro) -->
+    <div id="app-container" class="app-layout">
+        
+        <!-- Header Superior fijo -->
+        <header class="app-header">
+            <div class="user-badge">
+                <span id="header-username">Jugador</span>
+                <small id="header-level">Nivel 1</small>
             </div>
-        </div>
-
-        <div class="welcome-badge">
-            <div class="badge-dot"></div>
-            CAMINO A PRIMERA
-        </div>
-
-        <h1 class="welcome-title">
-            Tu carrera <br />
-            <span class="welcome-gradient">
-                empieza hoy
-            </span>
-        </h1>
-
-        <p class="welcome-subtitle">
-            Registrá entrenamientos, partidos,
-            objetivos y construí tu camino
-            al fútbol profesional.
-        </p>
-
-        <button
-            class="btn-primary"
-            onclick="goTo('welcome','profile')"
-        >
-            COMENZAR
-            <i data-lucide="arrow-right"></i>
-        </button>
-
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- PROFILE -->
-    <!-- ========================================================= -->
-    <section id="screen-profile" class="screen hidden-right no-scrollbar">
-
-        <div class="screen-header">
-            <div>
-                <h2 class="screen-title">
-                    Tu Perfil
-                </h2>
-
-                <p class="screen-subtitle">
-                    Creá tu ficha profesional
-                </p>
+            <div class="streak-counter">
+                🔥 <span id="streak-count">0</span> Días
             </div>
-
-            <div class="step-badge">
-                PASO 1
-            </div>
-        </div>
-
-        <!-- NOMBRE -->
-        <div style="margin-bottom:1rem;">
-            <label class="form-label">
-                Nombre
-            </label>
-
-            <input
-                id="player-name"
-                type="text"
-                class="form-input"
-                placeholder="Ej: Agustín"
-            />
-        </div>
-
-        <!-- CLUB -->
-        <div style="margin-bottom:1rem;">
-            <label class="form-label">
-                Club Actual
-            </label>
-
-            <input
-                id="club-name"
-                type="text"
-                class="form-input"
-                placeholder="Ej: Villa Dálmine"
-            />
-        </div>
-
-        <!-- POSICION -->
-        <div style="margin-bottom:1rem;">
-            <label class="form-label">
-                Posición
-            </label>
-
-            <div class="select-wrap">
-
-                <select
-                    id="position"
-                    class="form-select"
-                >
-                    <option value="">Seleccionar</option>
-
-                    <option>Arquero</option>
-
-                    <option>Defensor Central</option>
-                    <option>Lateral Derecho</option>
-                    <option>Lateral Izquierdo</option>
-
-                    <option>Mediocentro</option>
-                    <option>Mediocampista Defensivo</option>
-                    <option>Mediocampista Ofensivo</option>
-
-                    <option>Extremo Derecho</option>
-                    <option>Extremo Izquierdo</option>
-
-                    <option>Segundo Delantero</option>
-                    <option>Delantero Centro</option>
-                </select>
-
-                <i data-lucide="chevron-down"></i>
-
-            </div>
-        </div>
-
-        <!-- ALTURA -->
-        <div style="margin-bottom:1rem;">
-            <label class="form-label">
-                Altura (cm)
-            </label>
-
-            <input
-                id="height"
-                type="number"
-                class="form-input"
-                placeholder="Ej: 178"
-            />
-        </div>
-
-        <!-- PESO -->
-        <div style="margin-bottom:1rem;">
-            <label class="form-label">
-                Peso (kg)
-            </label>
-
-            <input
-                id="weight"
-                type="number"
-                class="form-input"
-                placeholder="Ej: 72"
-            />
-        </div>
-
-        <!-- BMI -->
-        <div class="stats-block" style="margin-bottom:1rem;">
-
-            <div class="stats-block-label">
-                Índice corporal
-            </div>
-
-            <div
-                style="
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:center;
-                    margin-top:1rem;
-                "
-            >
-                <div>
-                    <div
-                        id="bmi-value"
-                        style="
-                            font-size:2rem;
-                            font-weight:900;
-                            color:#fff;
-                        "
-                    >
-                        --
-                    </div>
-
-                    <div
-                        id="bmi-status"
-                        style="
-                            font-size:.75rem;
-                            color:var(--color-text-sub);
-                            font-weight:700;
-                        "
-                    >
-                        Esperando datos
-                    </div>
-                </div>
-
-                <i
-                    data-lucide="activity"
-                    style="
-                        width:28px;
-                        height:28px;
-                        color:var(--color-neon-green);
-                    "
-                ></i>
-            </div>
-
-        </div>
-
-        <!-- PIERNA -->
-        <div style="margin-bottom:1rem;">
-
-            <label class="form-label">
-                Pierna hábil
-            </label>
-
-            <div class="toggle-group">
-
-                <button
-                    id="foot-right"
-                    class="toggle-btn active"
-                    onclick="setFoot('diestro')"
-                >
-                    DIESTRO
-                </button>
-
-                <button
-                    id="foot-left"
-                    class="toggle-btn"
-                    onclick="setFoot('zurdo')"
-                >
-                    ZURDO
-                </button>
-
-            </div>
-
-        </div>
-
-        <!-- HABILIDADES -->
-        <div style="margin-bottom:1rem;">
-
-            <label class="form-label">
-                Habilidades principales
-            </label>
-
-            <div class="select-wrap" style="margin-bottom:.75rem;">
-
-                <select id="attr-1" class="form-select">
-                    <option value="">Habilidad #1</option>
-
-                    <option>Velocidad</option>
-                    <option>Definición</option>
-                    <option>Regate</option>
-                    <option>Visión</option>
-                    <option>Pase</option>
-                    <option>Resistencia</option>
-                    <option>Físico</option>
-                    <option>Juego aéreo</option>
-                    <option>Reflejos</option>
-                    <option>Anticipación</option>
-                    <option>Quite</option>
-                    <option>Centros</option>
-                </select>
-
-                <i data-lucide="chevron-down"></i>
-
-            </div>
-
-            <div class="select-wrap" style="margin-bottom:.75rem;">
-
-                <select id="attr-2" class="form-select">
-                    <option value="">Habilidad #2</option>
-
-                    <option>Velocidad</option>
-                    <option>Definición</option>
-                    <option>Regate</option>
-                    <option>Visión</option>
-                    <option>Pase</option>
-                    <option>Resistencia</option>
-                    <option>Físico</option>
-                    <option>Juego aéreo</option>
-                    <option>Reflejos</option>
-                    <option>Anticipación</option>
-                    <option>Quite</option>
-                    <option>Centros</option>
-                </select>
-
-                <i data-lucide="chevron-down"></i>
-
-            </div>
-
-            <div class="select-wrap">
-
-                <select id="attr-3" class="form-select">
-                    <option value="">
-                        Habilidad #3 (Opcional)
-                    </option>
-
-                    <option>Velocidad</option>
-                    <option>Definición</option>
-                    <option>Regate</option>
-                    <option>Visión</option>
-                    <option>Pase</option>
-                    <option>Resistencia</option>
-                    <option>Físico</option>
-                    <option>Juego aéreo</option>
-                    <option>Reflejos</option>
-                    <option>Anticipación</option>
-                    <option>Quite</option>
-                    <option>Centros</option>
-                </select>
-
-                <i data-lucide="chevron-down"></i>
-
-            </div>
-
-        </div>
-
-        <button
-            class="btn-green"
-            onclick="validateProfile()"
-        >
-            CONTINUAR
-            <i data-lucide="arrow-right"></i>
-        </button>
-
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- OBJECTIVES -->
-    <!-- ========================================================= -->
-    <section id="screen-objectives" class="screen hidden-right no-scrollbar">
-
-        <div class="screen-header">
-
-            <div>
-                <h2 class="screen-title">
-                    Objetivos
-                </h2>
-
-                <p class="screen-subtitle">
-                    Definí tus metas
-                </p>
-            </div>
-
-            <div class="step-badge">
-                PASO 2
-            </div>
-
-        </div>
-
-        <!-- OBJ -->
-        <div style="margin-bottom:1rem;">
-            <label class="form-label">
-                Objetivo corto plazo
-            </label>
-
-            <textarea
-                id="obj-short"
-                class="form-textarea"
-                rows="3"
-                placeholder="Ej: Ganar titularidad"
-            ></textarea>
-        </div>
-
-        <div style="margin-bottom:1rem;">
-            <label class="form-label">
-                Objetivo mediano plazo
-            </label>
-
-            <textarea
-                id="obj-mid"
-                class="form-textarea"
-                rows="3"
-                placeholder="Ej: Jugar regional"
-            ></textarea>
-        </div>
-
-        <div style="margin-bottom:1rem;">
-            <label class="form-label">
-                Objetivo largo plazo
-            </label>
-
-            <textarea
-                id="obj-long"
-                class="form-textarea"
-                rows="3"
-                placeholder="Ej: Debutar profesionalmente"
-            ></textarea>
-        </div>
-
-        <div style="margin-bottom:1.5rem;">
-            <label class="form-label">
-                Reflexión personal
-            </label>
-
-            <textarea
-                id="reflection-general"
-                class="form-textarea"
-                rows="5"
-                placeholder="¿Por qué querés llegar?"
-            ></textarea>
-        </div>
-
-        <button
-            class="btn-green"
-            onclick="saveObjectivesAndLaunch()"
-        >
-            TERMINAR PERFIL
-            <i data-lucide="shield-check"></i>
-        </button>
-
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- DASHBOARD -->
-    <!-- ========================================================= -->
-    <section id="screen-dashboard" class="screen hidden-right no-scrollbar">
-
-        <div class="dash-header">
-
-            <div>
-                <div
-                    id="dash-player-name"
-                    class="dash-player-name"
-                >
-                    Jugador
-                </div>
-
-                <div
-                    id="dash-player-club"
-                    class="dash-player-club"
-                >
-                    Club
-                </div>
-            </div>
-
-            <div
-                id="legend-badge"
-                class="legend-badge hidden"
-            >
-                <i data-lucide="crown"></i>
-                LEYENDA
-            </div>
-
-        </div>
-
-        <!-- STATS -->
-        <div class="stat-grid">
-
-            <!-- GOLES -->
-            <div
-                class="stat-box"
-                onclick="editGoal('goles')"
-            >
-
-                <div class="stat-box-label">
-                    GOLES
-                </div>
-
-                <div class="progress-donut">
-
-                    <svg viewBox="0 0 80 80">
-
-                        <circle
-                            cx="40"
-                            cy="40"
-                            r="34"
-                            fill="none"
-                            stroke="#1f1f23"
-                            stroke-width="6"
-                        ></circle>
-
-                        <circle
-                            id="donut-goles"
-                            class="circle-fill"
-                            cx="40"
-                            cy="40"
-                            r="34"
-                            fill="none"
-                            stroke="#34d399"
-                            stroke-width="6"
-                            stroke-linecap="round"
-                            transform="rotate(-90 40 40)"
-                            stroke-dasharray="213.6"
-                            stroke-dashoffset="213.6"
-                        ></circle>
-
+        </header>
+
+        <!-- PANTALLA: INICIO / PROGRESO -->
+        <div id="screen-home" class="screen">
+            <h2>Tu Rendimiento</h2>
+            
+            <!-- Tarjeta del gráfico de Donut (Progreso General) -->
+            <div class="card chart-card">
+                <div class="chart-container">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <circle class="circle-bg" cx="45" cy="45" r="34" stroke-width="8" fill="transparent" />
+                        <circle class="circle-fill" cx="45" cy="45" r="34" stroke-width="8" fill="transparent" />
                     </svg>
-
-                    <div class="donut-text">
-                        <div
-                            id="num-goles"
-                            class="donut-number"
-                        >
-                            0
-                        </div>
-
-                        <div
-                            id="goal-goles"
-                            class="donut-goal"
-                        >
-                            /5
-                        </div>
+                    <div class="chart-label">
+                        <span id="chart-percentage">0%</span>
                     </div>
-
                 </div>
-
+                <div class="card-info">
+                    <h3>Promedio General</h3>
+                    <p>Subí tus estadísticas completando entrenamientos diarios.</p>
+                </div>
             </div>
 
-            <!-- ASISTENCIAS -->
-            <div
-                class="stat-box"
-                onclick="editGoal('asistencias')"
-            >
-
-                <div class="stat-box-label">
-                    ASISTENCIAS
+            <!-- Tarjeta del gráfico de Líneas (Evolución Semanal) -->
+            <div class="card line-chart-card">
+                <h3>Evolución Semanal</h3>
+                <div id="performance-graph-container">
+                    <!-- El JS inyectará el <svg> con el <path> de forma dinámica acá -->
                 </div>
-
-                <div class="progress-donut">
-
-                    <svg viewBox="0 0 80 80">
-
-                        <circle
-                            cx="40"
-                            cy="40"
-                            r="34"
-                            fill="none"
-                            stroke="#1f1f23"
-                            stroke-width="6"
-                        ></circle>
-
-                        <circle
-                            id="donut-asistencias"
-                            class="circle-fill"
-                            cx="40"
-                            cy="40"
-                            r="34"
-                            fill="none"
-                            stroke="#a78bfa"
-                            stroke-width="6"
-                            stroke-linecap="round"
-                            transform="rotate(-90 40 40)"
-                            stroke-dasharray="213.6"
-                            stroke-dashoffset="213.6"
-                        ></circle>
-
-                    </svg>
-
-                    <div class="donut-text">
-                        <div
-                            id="num-asistencias"
-                            class="donut-number"
-                        >
-                            0
-                        </div>
-
-                        <div
-                            id="goal-asistencias"
-                            class="donut-goal"
-                        >
-                            /3
-                        </div>
-                    </div>
-
-                </div>
-
             </div>
-
         </div>
 
-        <!-- REGISTER -->
-        <button
-            class="register-trigger"
-            onclick="openRegisterModal()"
-        >
-
-            <div>
-
-                <div class="register-trigger-title">
-                    <div class="register-trigger-dot"></div>
-                    Registrar día
+        <!-- PANTALLA: ENTRENAMIENTOS -->
+        <div id="screen-training" class="screen">
+            <h2>Entrenamientos</h2>
+            <div class="training-list">
+                <div class="card training-card">
+                    <div class="training-icon">⚡</div>
+                    <div class="training-details">
+                        <h4>Control y Pase</h4>
+                        <p>Trabajo técnico individual a dos toques.</p>
+                    </div>
+                    <button class="btn-secondary" onclick="startTraining('control')">Iniciar</button>
                 </div>
-
-                <div class="register-trigger-sub">
-                    Entrenamiento o partido
+                <div class="card training-card">
+                    <div class="training-icon">🏃‍♂️</div>
+                    <div class="training-details">
+                        <h4>Potencia y Agilidad</h4>
+                        <p>Circuitos intermitentes de velocidad.</p>
+                    </div>
+                    <button class="btn-secondary" onclick="startTraining('potencia')">Iniciar</button>
                 </div>
-
             </div>
-
-            <div class="register-trigger-icon">
-                <i data-lucide="plus"></i>
-            </div>
-
-        </button>
-
-        <!-- FEED -->
-        <div class="feed-header">
-
-            <div class="feed-title">
-                HISTORIAL
-            </div>
-
         </div>
 
-        <div id="journal-feed"></div>
-
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- STATS -->
-    <!-- ========================================================= -->
-    <section id="screen-stats" class="screen hidden-right no-scrollbar">
-
-        <div class="screen-header">
-
-            <div>
-                <h2 class="screen-title">
-                    Estadísticas
-                </h2>
-
-                <p class="screen-subtitle">
-                    Rendimiento general
-                </p>
+        <!-- PANTALLA: MI PERFIL -->
+        <div id="screen-profile" class="screen">
+            <h2>Mi Perfil</h2>
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">👤</div>
+                    <h3 id="profile-name-display">Nombre Jugador</h3>
+                </div>
+                <hr class="divider">
+                <div class="profile-stats-grid">
+                    <div class="stat-item">
+                        <small>Posición</small>
+                        <span id="profile-position">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <small>Club</small>
+                        <span id="profile-club">-</span>
+                    </div>
+                </div>
             </div>
-
         </div>
 
-        <div class="stats-block">
-
-            <div class="stats-block-label">
-                Totales
-            </div>
-
-            <div class="stats-totals-grid">
-
-                <div>
-                    <div
-                        id="total-goles"
-                        class="stats-total-num"
-                    >
-                        0
-                    </div>
-
-                    <div class="stats-total-label">
-                        Goles
-                    </div>
-                </div>
-
-                <div>
-                    <div
-                        id="total-asistencias"
-                        class="stats-total-num"
-                    >
-                        0
-                    </div>
-
-                    <div class="stats-total-label">
-                        Asistencias
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="stats-block">
-
-            <div class="stats-block-label">
-                Índice corporal
-            </div>
-
-            <div
-                id="stats-bmi"
-                style="
-                    margin-top:1rem;
-                    font-size:1.25rem;
-                    font-weight:900;
-                    color:#fff;
-                "
-            >
-                --
-            </div>
-
-        </div>
-
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- SETTINGS -->
-    <!-- ========================================================= -->
-    <section id="screen-settings" class="screen hidden-right no-scrollbar">
-
-        <div class="screen-header">
-
-            <div>
-                <h2 class="screen-title">
-                    Configuración
-                </h2>
-
-                <p class="screen-subtitle">
-                    Ajustes generales
-                </p>
-            </div>
-
-        </div>
-
-        <div class="danger-row">
-
-            <div class="danger-row-left">
-
-                <i
-                    data-lucide="rotate-ccw"
-                    class="danger-row-icon"
-                ></i>
-
-                <div>
-                    <div class="danger-row-title">
-                        Reiniciar progreso
-                    </div>
-
-                    <div class="danger-row-sub">
-                        Borra todos los datos
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- NAV -->
-    <!-- ========================================================= -->
-    <nav id="app-nav">
-
-        <button
-            id="nav-dash"
-            class="nav-btn active"
-            onclick="navigate('dash')"
-        >
-            <i data-lucide="home"></i>
-            Inicio
-        </button>
-
-        <button
-            id="nav-stats"
-            class="nav-btn"
-            onclick="navigate('stats')"
-        >
-            <i data-lucide="bar-chart-3"></i>
-            Stats
-        </button>
-
-        <button
-            id="nav-settings"
-            class="nav-btn"
-            onclick="navigate('settings')"
-        >
-            <i data-lucide="settings-2"></i>
-            Ajustes
-        </button>
-
-    </nav>
-
-    <!-- ========================================================= -->
-    <!-- REGISTER MODAL -->
-    <!-- ========================================================= -->
-    <div
-        id="register-modal"
-        class="sheet-overlay"
-        onclick="closeRegisterModal(event)"
-    >
-
-        <div class="sheet-panel">
-
-            <div class="sheet-header">
-
-                <div class="sheet-title">
-                    Registrar día
-                </div>
-
-                <button
-                    class="sheet-close"
-                    onclick="closeSheet('register-modal')"
-                >
-                    <i data-lucide="x"></i>
-                </button>
-
-            </div>
-
-            <!-- TYPE -->
-            <div
-                class="toggle-group"
-                style="margin-bottom:1rem;"
-            >
-
-                <button
-                    class="toggle-btn active"
-                    onclick="setRegType('Entrenamiento')"
-                >
-                    ENTRENAMIENTO
-                </button>
-
-                <button
-                    class="toggle-btn"
-                    onclick="setRegType('Partido')"
-                >
-                    PARTIDO
-                </button>
-
-            </div>
-
-            <!-- GOLES -->
-            <div
-                class="counter-row"
-                style="margin-bottom:.75rem;"
-            >
-
-                <div class="counter-label">
-                    Goles
-                </div>
-
-                <div class="counter-controls">
-
-                    <button
-                        class="counter-btn"
-                        onclick="adjustRegCounter('goles',-1)"
-                    >
-                        -
-                    </button>
-
-                    <div
-                        id="reg-val-goles"
-                        class="counter-value"
-                    >
-                        0
-                    </div>
-
-                    <button
-                        class="counter-btn"
-                        onclick="adjustRegCounter('goles',1)"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-            <!-- ASIST -->
-            <div
-                class="counter-row"
-                style="margin-bottom:1rem;"
-            >
-
-                <div class="counter-label">
-                    Asistencias
-                </div>
-
-                <div class="counter-controls">
-
-                    <button
-                        class="counter-btn"
-                        onclick="adjustRegCounter('asistencias',-1)"
-                    >
-                        -
-                    </button>
-
-                    <div
-                        id="reg-val-asistencias"
-                        class="counter-value"
-                    >
-                        0
-                    </div>
-
-                    <button
-                        class="counter-btn"
-                        onclick="adjustRegCounter('asistencias',1)"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-            <!-- REFLECTION -->
-            <textarea
-                id="reg-reflection"
-                class="form-textarea"
-                rows="5"
-                placeholder="¿Cómo te sentiste hoy?"
-                style="margin-bottom:1rem;"
-            ></textarea>
-
-            <button
-                class="btn-green"
-                onclick="saveDailyLog()"
-            >
-                GUARDAR
+        <!-- Menú de Navegación Inferior (Tabs) -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('home')">
+                <span class="nav-icon">🏠</span>
+                <span>Inicio</span>
             </button>
-
-        </div>
-
+            <button class="nav-item" onclick="switchTab('training')">
+                <span class="nav-icon">⚽</span>
+                <span>Entrenar</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('profile')">
+                <span class="nav-icon">👤</span>
+                <span>Perfil</span>
+            </button>
+        </nav>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- GOAL MODAL -->
-    <!-- ========================================================= -->
-    <div
-        id="goal-modal"
-        class="sheet-overlay"
-        onclick="closeGoalModal(event)"
-    >
-
-        <div class="sheet-panel">
-
+    <!-- 3. MODAL DE REGISTRO (Bottom Sheet deslizable) -->
+    <div id="register-modal" class="sheet-overlay" onclick="closeRegisterModal(event)">
+        <!-- El event.stopPropagation() evita que el modal se cierre al tocar dentro del panel -->
+        <div class="sheet-panel" onclick="event.stopPropagation()">
             <div class="sheet-header">
-
-                <div class="sheet-title">
-                    Editar meta
+                <div class="drag-handle"></div>
+                <h3>Creá tu Perfil de Crack</h3>
+            </div>
+            
+            <form id="register-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="reg-name">Nombre o Apodo</label>
+                    <input type="text" id="reg-name" placeholder="Ej: Agus" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-position">Posición en la cancha</label>
+                    <select id="reg-position" required>
+                        <option value="" disabled selected>Seleccioná tu posición</option>
+                        <option value="Arquero">Arquero</option>
+                        <option value="Defensor">Defensor</option>
+                        <option value="Mediocampista">Mediocampista</option>
+                        <option value="Delantero">Delantero</option>
+                    </select>
                 </div>
 
-                <button
-                    class="sheet-close"
-                    onclick="closeSheet('goal-modal')"
-                >
-                    <i data-lucide="x"></i>
-                </button>
+                <div class="form-group">
+                    <label for="reg-club">Club Actual</label>
+                    <input type="text" id="reg-club" placeholder="Ej: Libre / Nombre del Club" required>
+                </div>
 
-            </div>
-
-            <input
-                id="goal-modal-input"
-                type="number"
-                class="form-input"
-                placeholder="Meta"
-                style="margin-bottom:1rem;"
-            />
-
-            <button
-                class="btn-green"
-                onclick="saveGoalLimit()"
-            >
-                GUARDAR META
-            </button>
-
+                <button type="submit" class="btn-primary w-100">Guardar y Entrar</button>
+            </form>
         </div>
-
     </div>
 
-</div>
-
-<!-- JS -->
-<script src="main.js"></script>
-
+    <!-- Vinculación del archivo JS (Siempre al final para asegurar la carga del DOM) -->
+    <script src="main.js"></script>
 </body>
 </html>
