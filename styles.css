@@ -1,961 +1,504 @@
-/* ============================================================
-   CAMINO A PRIMERA — styles.css
-   ============================================================ */
-
+/* ==========================================
+   VARIABLES Y CONFIGURACIÓN BASE
+   ========================================== */
 :root {
-  --bg: #050505;
-  --card: #101014;
-  --card-2: #18181f;
-  --border: rgba(255,255,255,0.06);
-
-  --text: #f4f4f5;
-  --sub: #8e8e93;
-
-  --green: #34d399;
-  --purple: #a78bfa;
-  --gold: #fbbf24;
-
-  --danger: #ef4444;
+    --bg-color: #0b0f17;
+    --card-bg: #161b26;
+    --border-color: #232d3f;
+    
+    /* Colores Principales (Estilo Neón Premium) */
+    --primary-color: #00ff66;      /* Verde Flúor */
+    --accent-color: #8b5cf6;       /* Violeta */
+    
+    /* Tipografía y Textos */
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-
-/* ============================================================
-   RESET
-   ============================================================ */
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-
-html,
-body {
-  width: 100%;
-  min-height: 100%;
-  overflow: hidden;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent; /* Saca el recuadro naranja/azul feo en Android/iOS */
 }
 
 body {
-  background: #000;
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  -webkit-font-smoothing: antialiased;
+    font-family: var(--font-stack);
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-button {
-  border: none;
-  outline: none;
-}
-
-/* ============================================================
-   APP
-   ============================================================ */
-
-#app-wrapper {
-  width: 100%;
-  max-width: 430px;
-  height: 100svh;
-  background:
-    radial-gradient(circle at top left, rgba(52,211,153,.12), transparent 35%),
-    radial-gradient(circle at bottom right, rgba(167,139,250,.12), transparent 35%),
-    var(--bg);
-
-  overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(255,255,255,.04);
-}
-
-@media (min-width: 640px) {
-  #app-wrapper {
-    height: 900px;
-    border-radius: 34px;
-    box-shadow: 0 30px 80px rgba(0,0,0,.55);
-  }
-}
-
-/* ============================================================
-   SCREEN
-   ============================================================ */
-
+/* ==========================================
+   ESTRUCTURA DE PANTALLAS (SPA ANIMADO)
+   ========================================== */
 .screen {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(30px);
-  transition: .35s ease;
+    display: none;
+    padding: 20px;
+    padding-bottom: 100px; /* Margen para que el menú inferior no tape el contenido */
 }
 
+/* Animación de entrada fluida cuando una pantalla se activa */
 .screen.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(0);
+    display: block;
+    animation: slideIn 0.3s ease forwards;
 }
 
-/* ============================================================
-   WELCOME
-   ============================================================ */
-
-#screen-welcome {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-.logo-area {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Contenedor principal de la app (oculto al inicio si no hay registro) */
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.logo-circle {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at top, rgba(255,255,255,.08), transparent 70%),
-    rgba(255,255,255,.02);
-
-  border: 1px solid rgba(255,255,255,.08);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-shadow:
-    0 0 50px rgba(52,211,153,.08),
-    0 0 90px rgba(167,139,250,.05);
+/* ==========================================
+   PANTALLA DE BIENVENIDA
+   ========================================== */
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 100vh;
+    padding: 30px;
+    background: radial-gradient(circle at top, rgba(139, 92, 246, 0.15), transparent 60%);
 }
 
-.logo-circle svg {
-  width: 58px;
-  height: 58px;
-  color: white;
+.brand-logo {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 15px var(--accent-color));
 }
 
-.welcome-badge {
-  width: fit-content;
-  padding: .4rem .8rem;
-  border-radius: 999px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
-
-  color: var(--green);
-  font-size: .7rem;
-  font-weight: 800;
-  letter-spacing: .08em;
-
-  margin-bottom: 1rem;
+.welcome-container h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.welcome-title {
-  font-size: 3rem;
-  line-height: .95;
-  font-weight: 900;
-  letter-spacing: -.05em;
-
-  margin-bottom: 1rem;
+.welcome-container p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    max-width: 320px;
 }
 
-.gradient-text {
-  background: linear-gradient(to right, var(--green), var(--purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* ==========================================
+   HEADER SUPERIOR
+   ========================================== */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: rgba(11, 15, 23, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-.welcome-subtitle {
-  color: var(--sub);
-  font-size: .95rem;
-  line-height: 1.7;
-  margin-bottom: 2rem;
+.user-badge {
+    display: flex;
+    flex-direction: column;
 }
 
-/* ============================================================
-   BUTTONS
-   ============================================================ */
-
-.btn-primary {
-  width: 100%;
-  height: 60px;
-
-  border-radius: 20px;
-
-  background: linear-gradient(135deg, var(--green), #10b981);
-
-  color: #04140d;
-  font-weight: 900;
-  font-size: .85rem;
-  letter-spacing: .08em;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .55rem;
-
-  cursor: pointer;
-
-  transition: .25s ease;
-
-  box-shadow:
-    0 15px 40px rgba(52,211,153,.22);
+#header-username {
+    font-weight: 700;
+    font-size: 1.1rem;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
+#header-level {
+    color: var(--accent-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.btn-primary svg {
-  width: 18px;
-  height: 18px;
+.streak-counter {
+    background: rgba(0, 255, 102, 0.1);
+    border: 1px solid rgba(0, 255, 102, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary-color);
 }
 
-.btn-secondary {
-  width: 100%;
-  height: 56px;
-
-  border-radius: 18px;
-
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.06);
-
-  color: white;
-  font-weight: 800;
-
-  cursor: pointer;
+/* ==========================================
+   COMPONENTES DE TARJETAS (CARDS)
+   ========================================== */
+h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    margin-top: 10px;
 }
 
-/* ============================================================
-   SCREENS
-   ============================================================ */
-
-#screen-profile,
-#screen-dashboard,
-#screen-stats,
-#screen-settings {
-  padding: 1.5rem;
-  overflow-y: auto;
-  padding-bottom: 7rem;
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
 }
 
-#screen-profile::-webkit-scrollbar,
-#screen-dashboard::-webkit-scrollbar,
-#screen-stats::-webkit-scrollbar,
-#screen-settings::-webkit-scrollbar {
-  display: none;
+/* Tarjeta con el Donut SVG */
+.chart-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
-
-.screen-header {
-  margin-bottom: 1.8rem;
-}
-
-.screen-title {
-  font-size: 2rem;
-  font-weight: 900;
-  letter-spacing: -.04em;
-}
-
-.screen-subtitle {
-  color: var(--sub);
-  font-size: .85rem;
-  margin-top: .4rem;
-}
-
-/* ============================================================
-   FORMS
-   ============================================================ */
-
-.form-group {
-  margin-bottom: 1.2rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: .6rem;
-
-  font-size: .72rem;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-
-  color: var(--sub);
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.06);
-
-  color: white;
-
-  border-radius: 18px;
-
-  padding: 1rem 1rem;
-
-  outline: none;
-
-  transition: .2s ease;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  border-color: rgba(52,211,153,.7);
-  box-shadow: 0 0 0 4px rgba(52,211,153,.08);
-}
-
-.form-textarea {
-  resize: none;
-}
-
-/* ============================================================
-   TOGGLES
-   ============================================================ */
-
-.toggle-group {
-  display: flex;
-  gap: .6rem;
-}
-
-.toggle-btn {
-  flex: 1;
-  height: 52px;
-
-  border-radius: 16px;
-
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.06);
-
-  color: var(--sub);
-  font-weight: 800;
-
-  cursor: pointer;
-
-  transition: .2s ease;
-}
-
-.toggle-btn.active {
-  background: rgba(52,211,153,.15);
-  border-color: rgba(52,211,153,.35);
-  color: var(--green);
-}
-
-/* ============================================================
-   BMI CARD
-   ============================================================ */
-
-.bmi-card {
-  margin-top: .4rem;
-
-  padding: 1.2rem;
-
-  border-radius: 22px;
-
-  background:
-    linear-gradient(135deg, rgba(52,211,153,.08), rgba(167,139,250,.08));
-
-  border: 1px solid rgba(255,255,255,.05);
-}
-
-.bmi-label {
-  font-size: .72rem;
-  color: var(--sub);
-  font-weight: 800;
-  margin-bottom: .5rem;
-}
-
-.bmi-value {
-  font-size: 2rem;
-  font-weight: 900;
-  letter-spacing: -.05em;
-}
-
-.bmi-desc {
-  margin-top: .35rem;
-  color: #d4d4d8;
-  font-size: .85rem;
-}
-
-/* ============================================================
-   DASHBOARD
-   ============================================================ */
-
-.dash-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-bottom: 1.5rem;
-}
-
-.dash-player-name {
-  font-size: 1.5rem;
-  font-weight: 900;
-  letter-spacing: -.04em;
-}
-
-.dash-player-club {
-  color: var(--sub);
-  font-size: .85rem;
-  margin-top: .3rem;
-}
-
-.legend-badge {
-  padding: .45rem .8rem;
-  border-radius: 999px;
-
-  background: rgba(251,191,36,.12);
-  border: 1px solid rgba(251,191,36,.2);
-
-  color: var(--gold);
-
-  font-size: .7rem;
-  font-weight: 900;
-}
-
-/* ============================================================
-   DONUTS
-   ============================================================ */
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-
-  margin-bottom: 1.5rem;
-}
-
-.stat-box {
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.05);
-
-  border-radius: 28px;
-
-  padding: 1.2rem;
-
-  text-align: center;
-
-  transition: .25s ease;
-}
-
-.stat-box:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255,255,255,.08);
-}
-
-.stat-box-label {
-  color: var(--sub);
-  font-size: .72rem;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-
-  margin-bottom: 1rem;
-}
-
-.progress-donut {
-  position: relative;
-  width: 90px;
-  height: 90px;
-
-  margin: 0 auto;
-}
-
-.progress-donut svg {
-  width: 90px;
-  height: 90px;
-
-  transform: rotate(-90deg);
+.chart-container {
+    position: relative;
+    width: 90px;
+    height: 90px;
 }
 
 .circle-bg {
-  fill: none;
-  stroke: rgba(255,255,255,.05);
-  stroke-width: 8;
+    stroke: var(--border-color);
 }
 
 .circle-fill {
-  fill: none;
-  stroke: var(--green);
-  stroke-width: 8;
-  stroke-linecap: round;
-
-  transition: .4s ease;
+    stroke: var(--primary-color);
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.donut-text {
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.chart-label {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.donut-number {
-  font-size: 1.3rem;
-  font-weight: 900;
+#chart-percentage {
+    font-size: 1.1rem;
+    font-weight: 700;
 }
 
-.donut-goal {
-  font-size: .7rem;
-  color: var(--sub);
+.card-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
 }
 
-/* ============================================================
-   REGISTER BUTTON
-   ============================================================ */
-
-.register-trigger {
-  width: 100%;
-
-  background:
-    linear-gradient(135deg, rgba(52,211,153,.08), rgba(167,139,250,.08));
-
-  border: 1px solid rgba(255,255,255,.06);
-
-  border-radius: 28px;
-
-  padding: 1.3rem;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-bottom: 1.6rem;
-
-  cursor: pointer;
+.card-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
 }
 
-.register-trigger-title {
-  font-size: 1rem;
-  font-weight: 900;
+/* Contenedor del Gráfico de Líneas Semanal */
+#performance-graph-container {
+    margin-top: 15px;
+    width: 100%;
 }
 
-.register-trigger-sub {
-  margin-top: .3rem;
-  color: var(--sub);
-  font-size: .8rem;
+/* ==========================================
+   PANTALLA ENTRENAMIENTOS
+   ========================================== */
+.training-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-/* ============================================================
-   FEED
-   ============================================================ */
-
-.feed-title {
-  color: var(--sub);
-  font-size: .72rem;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-
-  margin-bottom: 1rem;
+.training-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
 }
 
-#journal-feed {
-  display: flex;
-  flex-direction: column;
-  gap: .9rem;
+.training-icon {
+    font-size: 1.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
 }
 
-.feed-card {
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.05);
-
-  border-radius: 24px;
-
-  padding: 1.2rem;
+.training-details {
+    flex: 1;
 }
 
-.feed-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-bottom: .7rem;
+.training-details h4 {
+    font-size: 1rem;
+    margin-bottom: 2px;
 }
 
-.feed-card-type {
-  font-size: .72rem;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+.training-details p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
 }
 
-.feed-card-type.match {
-  color: var(--green);
+/* ==========================================
+   PANTALLA PERFIL
+   ========================================== */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
-.feed-card-type.training {
-  color: var(--purple);
+.profile-avatar {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--accent-color), #4f46e5);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 
-.feed-card-date {
-  color: var(--sub);
-  font-size: .75rem;
+.divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color);
+    margin-bottom: 16px;
 }
 
-.feed-card-stats {
-  display: flex;
-  gap: .6rem;
-
-  margin-bottom: .7rem;
+.profile-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
 }
 
-.stat-pill {
-  padding: .35rem .7rem;
-  border-radius: 999px;
-
-  font-size: .72rem;
-  font-weight: 800;
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.stat-pill.green {
-  background: rgba(52,211,153,.12);
-  color: var(--green);
+.stat-item small {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.stat-pill.purple {
-  background: rgba(167,139,250,.12);
-  color: var(--purple);
+.stat-item span {
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
-.feed-card-reflection {
-  line-height: 1.7;
-  color: #e4e4e7;
-  font-size: .85rem;
+/* ==========================================
+   BOTONES
+   ========================================== */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #00cc52 100%);
+    color: #000;
+    border: none;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
-.feed-empty {
-  padding: 2rem;
-  text-align: center;
-
-  border-radius: 24px;
-  border: 1px dashed rgba(255,255,255,.08);
-
-  color: var(--sub);
+.btn-primary:active {
+    transform: scale(0.98);
+    opacity: 0.9;
 }
 
-/* ============================================================
-   STATS
-   ============================================================ */
-
-.stats-block {
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.05);
-
-  border-radius: 28px;
-
-  padding: 1.3rem;
-
-  margin-bottom: 1rem;
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.stats-block-label {
-  color: var(--sub);
-  font-size: .72rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: .08em;
+.btn-secondary:active {
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
-.stats-totals-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-
-  margin-top: 1rem;
+.w-100 {
+    width: 100%;
 }
 
-.stats-total-num {
-  font-size: 2rem;
-  font-weight: 900;
+/* ==========================================
+   MENÚ DE NAVEGACIÓN INFERIOR (BOTTOM NAV)
+   ========================================== */
+.bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 76px;
+    background-color: rgba(22, 27, 38, 0.8);
+    border-top: 1px solid var(--border-color);
+    backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom); /* Soporte para el notch inferior de iPhones */
+    z-index: 100;
 }
 
-.stats-total-label {
-  margin-top: .3rem;
-  color: var(--sub);
-  font-size: .8rem;
+.nav-item {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 60px;
+    transition: color 0.2s;
 }
 
-#chart-container {
-  height: 160px;
-  margin-top: 1rem;
+.nav-icon {
+    font-size: 1.4rem;
+    transition: transform 0.2s;
 }
 
-.attr-row {
-  display: flex;
-  justify-content: space-between;
-
-  padding: .9rem 0;
-
-  border-bottom: 1px solid rgba(255,255,255,.05);
+/* Estado activo del botón del menú */
+.nav-item.active {
+    color: var(--primary-color);
 }
 
-.attr-row:last-child {
-  border-bottom: none;
+.nav-item.active .nav-icon {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.4));
 }
 
-.attr-label {
-  color: var(--sub);
-}
-
-.attr-value-green {
-  color: var(--green);
-  font-weight: 800;
-}
-
-.attr-value-purple {
-  color: var(--purple);
-  font-weight: 800;
-}
-
-.attr-value-white {
-  color: white;
-  font-weight: 800;
-}
-
-/* ============================================================
-   NAVIGATION
-   ============================================================ */
-
-#app-nav {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-
-  width: 100%;
-  height: 82px;
-
-  background: rgba(5,5,5,.94);
-  backdrop-filter: blur(16px);
-
-  border-top: 1px solid rgba(255,255,255,.05);
-
-  display: none;
-  justify-content: space-around;
-  align-items: center;
-
-  z-index: 50;
-}
-
-#app-nav.visible {
-  display: flex;
-}
-
-.nav-btn {
-  background: transparent;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: .4rem;
-
-  color: var(--sub);
-
-  cursor: pointer;
-
-  transition: .2s ease;
-}
-
-.nav-btn svg {
-  width: 21px;
-  height: 21px;
-}
-
-.nav-btn span {
-  font-size: .7rem;
-  font-weight: 800;
-}
-
-.nav-btn.active {
-  color: var(--green);
-}
-
-/* ============================================================
-   MODALS
-   ============================================================ */
-
+/* ==========================================
+   MODAL DESLIZABLE (BOTTOM SHEET)
+   ========================================== */
 .sheet-overlay {
-  position: absolute;
-  inset: 0;
-
-  background: rgba(0,0,0,.75);
-  backdrop-filter: blur(8px);
-
-  display: flex;
-  align-items: flex-end;
-
-  opacity: 0;
-  pointer-events: none;
-
-  transition: .25s ease;
-
-  z-index: 90;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end; /* Lo alinea abajo */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 
-.sheet-overlay.show {
-  opacity: 1;
-  pointer-events: auto;
+/* Cuando el modal tiene la clase active, se desvanece el fondo oscuro */
+.sheet-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .sheet-panel {
-  width: 100%;
-
-  background: #111114;
-
-  border-radius: 34px 34px 0 0;
-
-  padding: 1.5rem;
-
-  transform: translateY(100%);
-  transition: .3s ease;
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: 24px 24px 0 0;
+    padding: 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border-color);
+    
+    /* El panel arranca escondido abajo */
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.94);
 }
 
-.sheet-overlay.show .sheet-panel {
-  transform: translateY(0);
+/* Cuando el modal se activa, el panel sube */
+.sheet-overlay.active .sheet-panel {
+    transform: translateY(0);
 }
 
 .sheet-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
 }
 
-.sheet-title {
-  font-size: 1.3rem;
-  font-weight: 900;
+/* El palito clásico de arrastre visual de los modales tipo iOS */
+.drag-handle {
+    width: 40px;
+    height: 5px;
+    background-color: var(--border-color);
+    border-radius: 3px;
+    margin-bottom: 16px;
 }
 
-.sheet-close {
-  width: 40px;
-  height: 40px;
-
-  border-radius: 50%;
-
-  background: rgba(255,255,255,.05);
-
-  color: white;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
+.sheet-header h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
 }
 
-/* ============================================================
-   COUNTERS
-   ============================================================ */
-
-.counter-row {
-  background: rgba(255,255,255,.04);
-
-  border-radius: 20px;
-
-  padding: 1rem;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-bottom: .8rem;
+/* ==========================================
+   FORMULARIOS
+   ========================================== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
 }
 
-.counter-label {
-  font-weight: 800;
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
 }
 
-.counter-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.form-group input,
+.form-group select {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: #fff;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: var(--font-stack);
+    outline: none;
+    transition: border-color 0.2s;
 }
 
-.counter-btn {
-  width: 34px;
-  height: 34px;
-
-  border-radius: 50%;
-
-  background: rgba(255,255,255,.08);
-
-  color: white;
-
-  font-size: 1rem;
-  font-weight: 800;
-
-  cursor: pointer;
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--accent-color);
 }
 
-.counter-value {
-  min-width: 16px;
-  text-align: center;
-
-  font-weight: 900;
-}
-
-/* ============================================================
-   TOAST
-   ============================================================ */
-
-#toast-container {
-  position: absolute;
-  top: 1rem;
-  left: 50%;
-
-  transform: translateX(-50%) translateY(-20px);
-
-  opacity: 0;
-
-  transition: .25s ease;
-
-  z-index: 120;
-}
-
-#toast-container.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-.toast-inner {
-  background: rgba(20,20,24,.95);
-  border: 1px solid rgba(255,255,255,.06);
-
-  padding: .9rem 1rem;
-
-  border-radius: 18px;
-
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-
-  min-width: 260px;
-}
-
-#toast-text {
-  font-size: .82rem;
-  font-weight: 700;
+/* Ajuste específico para que la flecha del select se vea bien en dark mode */
+.form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+    padding-right: 40px;
 }
