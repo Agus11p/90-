@@ -1,38 +1,27 @@
 /* =========================================================
    CAMINO A PRIMERA — ULTRA UI
    ========================================================= */
-
 :root{
   --bg:#050505;
   --bg-2:#0b0b0f;
-
   --card:rgba(255,255,255,.05);
   --card-2:rgba(255,255,255,.03);
-
   --border:rgba(255,255,255,.06);
-
   --white:#f5f5f5;
   --text:#d6d6da;
   --muted:#8f8f98;
-
   --green:#34d399;
   --green-dark:#10b981;
-
   --purple:#8b5cf6;
   --gold:#fbbf24;
-
   --danger:#ef4444;
-
-  --shadow:
-    0 10px 40px rgba(0,0,0,.35);
-
+  --shadow:0 10px 40px rgba(0,0,0,.35);
   --radius:28px;
 }
 
 /* =========================================================
    RESET
    ========================================================= */
-
 *{
   margin:0;
   padding:0;
@@ -40,8 +29,7 @@
   -webkit-tap-highlight-color:transparent;
 }
 
-html,
-body{
+html,body{
   width:100%;
   height:100%;
   overflow:hidden;
@@ -50,25 +38,14 @@ body{
 body{
   background:#000;
   color:var(--white);
-
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    sans-serif;
-
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
   display:flex;
   align-items:center;
   justify-content:center;
-
   -webkit-font-smoothing:antialiased;
 }
 
-button,
-input,
-textarea,
-select{
+button,input,textarea,select{
   font:inherit;
 }
 
@@ -77,47 +54,37 @@ button{
   outline:none;
 }
 
-input,
-textarea,
-select{
+input,textarea,select{
   outline:none;
 }
 
 /* =========================================================
    APP WRAPPER
    ========================================================= */
-
 #app-wrapper{
   width:100%;
   max-width:430px;
   height:100svh;
-
   background:
     radial-gradient(circle at top left, rgba(52,211,153,.15), transparent 30%),
     radial-gradient(circle at bottom right, rgba(139,92,246,.18), transparent 30%),
     linear-gradient(to bottom, #090909, #050505);
-
   position:relative;
   overflow:hidden;
-
   border:1px solid rgba(255,255,255,.05);
 }
 
 @media(min-width:640px){
-
   #app-wrapper{
     height:920px;
     border-radius:38px;
-    box-shadow:
-      0 40px 100px rgba(0,0,0,.65);
+    box-shadow:0 40px 100px rgba(0,0,0,.65);
   }
-
 }
 
 /* =========================================================
    AMBIENT
    ========================================================= */
-
 .ambient{
   position:absolute;
   border-radius:50%;
@@ -130,7 +97,6 @@ select{
   width:220px;
   height:220px;
   background:var(--green);
-
   top:-80px;
   left:-60px;
 }
@@ -139,7 +105,6 @@ select{
   width:260px;
   height:260px;
   background:var(--purple);
-
   right:-100px;
   bottom:-120px;
 }
@@ -147,29 +112,19 @@ select{
 /* =========================================================
    SCREEN
    ========================================================= */
-
 .screen{
   position:absolute;
   inset:0;
-
   opacity:0;
   pointer-events:none;
-
   transform:translateX(40px);
-
-  transition:
-    opacity .35s ease,
-    transform .35s ease;
+  transition:opacity .35s ease, transform .35s ease;
 }
 
 .screen.active{
   opacity:1;
   pointer-events:auto;
   transform:translateX(0);
-}
-
-.no-scrollbar{
-  scrollbar-width:none;
 }
 
 .no-scrollbar::-webkit-scrollbar{
@@ -179,17 +134,14 @@ select{
 /* =========================================================
    WELCOME
    ========================================================= */
-
 #screen-welcome{
   display:flex;
   flex-direction:column;
-
   padding:1.5rem;
 }
 
 .welcome-top{
   flex:1;
-
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -199,24 +151,13 @@ select{
 .welcome-logo{
   width:145px;
   height:145px;
-
   border-radius:50%;
-
-  background:
-    linear-gradient(145deg,
-      rgba(255,255,255,.08),
-      rgba(255,255,255,.03)
-    );
-
+  background:linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
   border:1px solid rgba(255,255,255,.08);
-
   display:flex;
   align-items:center;
   justify-content:center;
-
-  box-shadow:
-    0 0 60px rgba(52,211,153,.18);
-
+  box-shadow:0 0 60px rgba(52,211,153,.18);
   margin-bottom:1.6rem;
 }
 
@@ -228,14 +169,10 @@ select{
 
 .welcome-badge{
   padding:.55rem .95rem;
-
   border-radius:999px;
-
   background:rgba(52,211,153,.12);
   border:1px solid rgba(52,211,153,.18);
-
   color:var(--green);
-
   font-size:.72rem;
   font-weight:900;
   letter-spacing:.08em;
@@ -250,30 +187,24 @@ select{
   line-height:.9;
   font-weight:900;
   letter-spacing:-.07em;
-
   margin-bottom:1rem;
 }
 
 .welcome-title span{
-  background:
-    linear-gradient(to right,var(--green),var(--purple));
-
+  background:linear-gradient(to right,var(--green),var(--purple));
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 }
 
 .welcome-subtitle{
   color:var(--muted);
-
   font-size:.96rem;
   line-height:1.8;
 }
 
 .welcome-mini-text{
   margin-top:1rem;
-
   color:var(--muted);
-
   text-align:center;
   font-size:.8rem;
 }
@@ -281,36 +212,23 @@ select{
 /* =========================================================
    BUTTONS
    ========================================================= */
-
 .btn-primary,
 .btn-green{
   width:100%;
   height:60px;
-
   border-radius:22px;
-
-  background:
-    linear-gradient(135deg,
-      var(--green),
-      var(--green-dark));
-
+  background:linear-gradient(135deg, var(--green), var(--green-dark));
   color:#04140d;
-
   font-weight:900;
   letter-spacing:.08em;
   font-size:.82rem;
-
   display:flex;
   align-items:center;
   justify-content:center;
   gap:.6rem;
-
   cursor:pointer;
-
   transition:.22s ease;
-
-  box-shadow:
-    0 15px 40px rgba(52,211,153,.28);
+  box-shadow:0 15px 40px rgba(52,211,153,.28);
 }
 
 .btn-primary:hover,
@@ -332,14 +250,12 @@ select{
 /* =========================================================
    GENERAL SCREENS
    ========================================================= */
-
 #screen-profile,
 #screen-objectives,
 #screen-dashboard,
 #screen-stats,
 #screen-settings{
   overflow-y:auto;
-
   padding:1.5rem;
   padding-bottom:7rem;
 }
@@ -347,12 +263,10 @@ select{
 /* =========================================================
    HEADER
    ========================================================= */
-
 .screen-header{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
-
   margin-bottom:2rem;
 }
 
@@ -364,21 +278,16 @@ select{
 
 .screen-subtitle{
   margin-top:.45rem;
-
   color:var(--muted);
   font-size:.86rem;
 }
 
 .step-badge{
   padding:.5rem .8rem;
-
   border-radius:999px;
-
   background:rgba(52,211,153,.12);
   border:1px solid rgba(52,211,153,.2);
-
   color:var(--green);
-
   font-size:.65rem;
   font-weight:900;
   letter-spacing:.08em;
@@ -387,18 +296,14 @@ select{
 /* =========================================================
    FORM
    ========================================================= */
-
 .form-group{
   margin-bottom:1.15rem;
 }
 
 .form-label{
   display:block;
-
   margin-bottom:.7rem;
-
   color:var(--muted);
-
   font-size:.72rem;
   font-weight:900;
   letter-spacing:.08em;
@@ -409,17 +314,11 @@ select{
 .form-textarea,
 .form-select{
   width:100%;
-
   background:rgba(255,255,255,.045);
-
   border:1px solid rgba(255,255,255,.06);
-
   color:white;
-
   border-radius:22px;
-
   padding:1rem 1rem;
-
   transition:.2s ease;
 }
 
@@ -432,9 +331,7 @@ select{
 .form-textarea:focus,
 .form-select:focus{
   border-color:rgba(52,211,153,.55);
-
-  box-shadow:
-    0 0 0 4px rgba(52,211,153,.08);
+  box-shadow:0 0 0 4px rgba(52,211,153,.08);
 }
 
 .form-textarea{
@@ -447,17 +344,12 @@ select{
 
 .select-wrap i{
   position:absolute;
-
   right:1rem;
   top:50%;
-
   transform:translateY(-50%);
-
   width:18px;
   height:18px;
-
   color:var(--muted);
-
   pointer-events:none;
 }
 
@@ -478,28 +370,18 @@ select{
 /* =========================================================
    BMI
    ========================================================= */
-
 .bmi-card{
   margin-bottom:1.2rem;
-
   padding:1.3rem;
-
   border-radius:30px;
-
-  background:
-    linear-gradient(145deg,
-      rgba(52,211,153,.1),
-      rgba(139,92,246,.12));
-
+  background:linear-gradient(145deg, rgba(52,211,153,.1), rgba(139,92,246,.12));
   border:1px solid rgba(255,255,255,.06);
 }
 
 .bmi-label{
   color:var(--muted);
-
   font-size:.72rem;
   font-weight:900;
-
   margin-bottom:.5rem;
 }
 
@@ -511,7 +393,6 @@ select{
 
 .bmi-desc{
   margin-top:.35rem;
-
   color:#d4d4d8;
   font-size:.85rem;
 }
@@ -519,7 +400,6 @@ select{
 /* =========================================================
    TOGGLE
    ========================================================= */
-
 .toggle-group{
   display:flex;
   gap:.8rem;
@@ -528,47 +408,30 @@ select{
 .toggle-btn{
   flex:1;
   height:54px;
-
   border-radius:18px;
-
   background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.06);
-
   color:var(--muted);
-
   font-weight:800;
-
   cursor:pointer;
-
   transition:.2s ease;
 }
 
 .toggle-btn.active{
   background:rgba(52,211,153,.15);
-
   border-color:rgba(52,211,153,.35);
-
   color:var(--green);
 }
 
 /* =========================================================
    HERO
    ========================================================= */
-
 .hero-card{
   padding:1.5rem;
-
   border-radius:34px;
-
-  background:
-    linear-gradient(145deg,
-      rgba(52,211,153,.12),
-      rgba(139,92,246,.13));
-
+  background:linear-gradient(145deg, rgba(52,211,153,.12), rgba(139,92,246,.13));
   border:1px solid rgba(255,255,255,.07);
-
   margin-bottom:1.2rem;
-
   box-shadow:var(--shadow);
 }
 
@@ -576,7 +439,6 @@ select{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
-
   margin-bottom:1.5rem;
 }
 
@@ -588,7 +450,6 @@ select{
 
 .hero-sub{
   margin-top:.45rem;
-
   color:var(--muted);
   font-size:.85rem;
 }
@@ -596,11 +457,8 @@ select{
 .hero-icon{
   width:52px;
   height:52px;
-
   border-radius:18px;
-
   background:rgba(255,255,255,.08);
-
   display:flex;
   align-items:center;
   justify-content:center;
@@ -613,11 +471,9 @@ select{
 
 .hero-objective-label{
   color:var(--green);
-
   font-size:.7rem;
   font-weight:900;
   letter-spacing:.08em;
-
   margin-bottom:.55rem;
 }
 
@@ -629,24 +485,18 @@ select{
 /* =========================================================
    MINI STATS
    ========================================================= */
-
 .mini-stats-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:1rem;
-
   margin-bottom:1.4rem;
 }
 
 .mini-stat-card{
   padding:1.25rem;
-
   border-radius:28px;
-
   background:rgba(255,255,255,.04);
-
   border:1px solid rgba(255,255,255,.05);
-
   text-align:center;
 }
 
@@ -657,38 +507,24 @@ select{
 
 .mini-stat-label{
   margin-top:.4rem;
-
   color:var(--muted);
-
   font-size:.8rem;
 }
 
 /* =========================================================
-   REGISTER
+   REGISTER TRIGGER
    ========================================================= */
-
 .register-trigger{
   width:100%;
-
   border-radius:28px;
-
   padding:1.2rem 1.3rem;
-
-  background:
-    linear-gradient(145deg,
-      rgba(255,255,255,.06),
-      rgba(255,255,255,.03));
-
+  background:linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
   border:1px solid rgba(255,255,255,.06);
-
   display:flex;
   justify-content:space-between;
   align-items:center;
-
   cursor:pointer;
-
   transition:.2s ease;
-
   margin-bottom:1.5rem;
 }
 
@@ -703,7 +539,6 @@ select{
 
 .register-trigger-sub{
   margin-top:.3rem;
-
   color:var(--muted);
   font-size:.82rem;
 }
@@ -711,11 +546,8 @@ select{
 .register-trigger-icon{
   width:46px;
   height:46px;
-
   border-radius:16px;
-
   background:rgba(52,211,153,.14);
-
   display:flex;
   align-items:center;
   justify-content:center;
@@ -730,14 +562,12 @@ select{
 /* =========================================================
    FEED
    ========================================================= */
-
 .feed-header{
   margin-bottom:1rem;
 }
 
 .feed-title{
   color:var(--muted);
-
   font-size:.72rem;
   font-weight:900;
   letter-spacing:.08em;
@@ -751,11 +581,8 @@ select{
 
 .feed-card{
   padding:1.2rem;
-
   border-radius:28px;
-
   background:rgba(255,255,255,.04);
-
   border:1px solid rgba(255,255,255,.05);
 }
 
@@ -763,7 +590,6 @@ select{
   display:flex;
   justify-content:space-between;
   align-items:center;
-
   margin-bottom:.8rem;
 }
 
@@ -789,15 +615,12 @@ select{
 .feed-card-stats{
   display:flex;
   gap:.5rem;
-
   margin-bottom:.8rem;
 }
 
 .stat-pill{
   padding:.35rem .7rem;
-
   border-radius:999px;
-
   font-size:.72rem;
   font-weight:800;
 }
@@ -814,42 +637,31 @@ select{
 
 .feed-card-reflection{
   color:#ececec;
-
   line-height:1.7;
   font-size:.9rem;
 }
 
 .feed-empty{
   padding:2rem;
-
   border-radius:28px;
-
   border:1px dashed rgba(255,255,255,.08);
-
   text-align:center;
-
   color:var(--muted);
 }
 
 /* =========================================================
    STATS
    ========================================================= */
-
 .stats-block{
   padding:1.3rem;
-
   border-radius:30px;
-
   background:rgba(255,255,255,.04);
-
   border:1px solid rgba(255,255,255,.05);
-
   margin-bottom:1rem;
 }
 
 .stats-block-label{
   color:var(--muted);
-
   font-size:.72rem;
   font-weight:900;
   letter-spacing:.08em;
@@ -860,7 +672,6 @@ select{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:1rem;
-
   margin-top:1rem;
 }
 
@@ -871,7 +682,6 @@ select{
 
 .stats-total-label{
   margin-top:.35rem;
-
   color:var(--muted);
   font-size:.82rem;
 }
@@ -884,9 +694,7 @@ select{
 .attr-row{
   display:flex;
   justify-content:space-between;
-
   padding:1rem 0;
-
   border-bottom:1px solid rgba(255,255,255,.05);
 }
 
@@ -905,25 +713,18 @@ select{
 /* =========================================================
    NAV
    ========================================================= */
-
 #app-nav{
   position:absolute;
   left:0;
   bottom:0;
-
   width:100%;
   height:82px;
-
   background:rgba(5,5,5,.9);
-
   backdrop-filter:blur(16px);
-
   border-top:1px solid rgba(255,255,255,.05);
-
   display:none;
   justify-content:space-around;
   align-items:center;
-
   z-index:50;
 }
 
@@ -933,19 +734,14 @@ select{
 
 .nav-btn{
   background:transparent;
-
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:.45rem;
-
   color:var(--muted);
-
   font-size:.68rem;
   font-weight:800;
-
   cursor:pointer;
-
   transition:.2s ease;
 }
 
@@ -961,23 +757,16 @@ select{
 /* =========================================================
    MODAL
    ========================================================= */
-
 .sheet-overlay{
   position:absolute;
   inset:0;
-
   background:rgba(0,0,0,.72);
-
   backdrop-filter:blur(8px);
-
   display:flex;
   align-items:flex-end;
-
   opacity:0;
   pointer-events:none;
-
   transition:.25s ease;
-
   z-index:90;
 }
 
@@ -988,16 +777,11 @@ select{
 
 .sheet-panel{
   width:100%;
-
   background:#111114;
-
   border-radius:34px 34px 0 0;
-
   padding:1.5rem;
   padding-bottom:2rem;
-
   transform:translateY(100%);
-
   transition:.3s ease;
 }
 
@@ -1009,7 +793,6 @@ select{
   display:flex;
   justify-content:space-between;
   align-items:center;
-
   margin-bottom:1.4rem;
 }
 
@@ -1021,17 +804,12 @@ select{
 .sheet-close{
   width:42px;
   height:42px;
-
   border-radius:50%;
-
   background:rgba(255,255,255,.06);
-
   color:white;
-
   display:flex;
   align-items:center;
   justify-content:center;
-
   cursor:pointer;
 }
 
@@ -1051,18 +829,13 @@ select{
 /* =========================================================
    COUNTERS
    ========================================================= */
-
 .counter-row{
   padding:1rem;
-
   border-radius:22px;
-
   background:rgba(255,255,255,.05);
-
   display:flex;
   justify-content:space-between;
   align-items:center;
-
   margin-bottom:.8rem;
 }
 
@@ -1079,24 +852,17 @@ select{
 .counter-btn{
   width:36px;
   height:36px;
-
   border-radius:50%;
-
   background:rgba(255,255,255,.08);
-
   color:white;
-
   font-size:1rem;
   font-weight:900;
-
   cursor:pointer;
 }
 
 .counter-value{
   min-width:20px;
-
   text-align:center;
-
   font-size:1.1rem;
   font-weight:900;
 }
@@ -1104,49 +870,31 @@ select{
 /* =========================================================
    TOAST
    ========================================================= */
-
 #toast-container{
   position:absolute;
-
   top:1rem;
   left:50%;
-
-  transform:
-    translateX(-50%)
-    translateY(-15px);
-
+  transform:translateX(-50%) translateY(-15px);
   opacity:0;
-
   transition:.25s ease;
-
   z-index:120;
 }
 
 #toast-container.show{
   opacity:1;
-
-  transform:
-    translateX(-50%)
-    translateY(0);
+  transform:translateX(-50%) translateY(0);
 }
 
 .toast-inner{
   min-width:260px;
-
   background:rgba(18,18,22,.95);
-
   border:1px solid rgba(255,255,255,.06);
-
   padding:.95rem 1.1rem;
-
   border-radius:20px;
-
   display:flex;
   align-items:center;
   gap:.7rem;
-
-  box-shadow:
-    0 15px 40px rgba(0,0,0,.35);
+  box-shadow:0 15px 40px rgba(0,0,0,.35);
 }
 
 #toast-text{
@@ -1157,24 +905,17 @@ select{
 /* =========================================================
    SETTINGS
    ========================================================= */
-
 .danger-row{
   padding:1.3rem;
-
   border-radius:28px;
-
   background:rgba(255,255,255,.04);
-
   border:1px solid rgba(255,255,255,.05);
-
   transition:.2s ease;
-
   cursor:pointer;
 }
 
 .danger-row:hover{
   background:rgba(239,68,68,.06);
-
   border-color:rgba(239,68,68,.18);
 }
 
@@ -1187,7 +928,6 @@ select{
 .danger-row-icon{
   width:24px;
   height:24px;
-
   color:var(--danger);
 }
 
@@ -1197,7 +937,6 @@ select{
 
 .danger-row-sub{
   margin-top:.25rem;
-
   color:var(--muted);
   font-size:.8rem;
 }
