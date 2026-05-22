@@ -138,18 +138,69 @@ function saveObjectivesAndLaunch() {
   updateDashboardUI();
 }
 
+/* REEMPLAZÁ ESTA FUNCIÓN EN TU MAIN.JS */
 function fillProfileInputs() {
   if (!state.playerName) return;
-  document.getElementById('player-name').value = state.playerName;
-  document.getElementById('club-name').value = state.club;
-  document.getElementById('player-age').value = state.age;
-  document.getElementById('position').value = state.position;
-  document.getElementById('height').value = state.height;
-  document.getElementById('weight').value = state.weight;
-  document.getElementById('attr-1').value = state.attr1;
-  document.getElementById('attr-2').value = state.attr2;
-  setFoot(state.footSide);
+  
+  // Mapeamos los IDs del HTML con las propiedades del estado
+  const fields = {
+    'player-name': state.playerName,
+    'club-name': state.club,
+    'player-age': state.age,
+    'position': state.position,
+    'height': state.height,
+    'weight': state.weight,
+    'attr-1': state.attr1,
+    'attr-2': state.attr2
+  };
+
+  // Recorremos y solo asignamos si el elemento realmente existe en el DOM
+  for (const [id, value] of Object.entries(fields)) {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+  }
+
+  // Verificar si existen los botones de pierna hábil antes de ejecutarse
+  if (document.getElementById('foot-right') && document.getElementById('foot-left')) {
+    setFoot(state.footSide);
+  }
   calculateBMI();
+}
+
+/* REEMPLAZÁ ESTA FUNCIÓN EN TU MAIN.JS */
+function validateProfile() {
+  // Función interna para leer valores de forma segura sin romper el script
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  };
+
+  const name = getVal('player-name');
+  const clb = getVal('club-name');
+  const age = getVal('player-age');
+  const pos = getVal('position');
+  const h = getVal('height');
+  const w = getVal('weight');
+  const a1 = getVal('attr-1');
+  const a2 = getVal('attr-2');
+
+  // Si falta algún elemento crítico o está vacío, frena de forma limpia
+  if (!name || !clb || !age || !pos || !h || !w || !a1 || !a2) {
+    console.warn("Faltan completar campos en el perfil o hay IDs desalineados.");
+    return;
+  }
+
+  state.playerName = name; 
+  state.club = clb; 
+  state.age = age; 
+  state.position = pos;
+  state.height = h; 
+  state.weight = w; 
+  state.attr1 = a1; 
+  state.attr2 = a2;
+
+  saveState();
+  showScreen('objectives');
 }
 
 /* INTERFAZ DEL DASHBOARD */
