@@ -6,7 +6,6 @@
   <title>Camino a Primera</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 <div id="app-wrapper">
@@ -25,9 +24,7 @@
   <!-- WELCOME -->
   <section id="screen-welcome" class="screen active">
     <div class="welcome-top">
-      <div class="welcome-logo">
-        <i data-lucide="shield"></i>
-      </div>
+      <div class="welcome-logo"><i data-lucide="shield"></i></div>
       <div class="welcome-badge">NUEVA GENERACIÓN</div>
     </div>
     <div class="welcome-content">
@@ -35,148 +32,45 @@
       <p class="welcome-subtitle">Registrá entrenamientos, partidos, estadísticas y construí tu carrera hacia el fútbol profesional.</p>
     </div>
     <div class="welcome-bottom">
-      <button class="btn-green" onclick="goTo('welcome','profile')">COMENZAR <i data-lucide="arrow-right"></i></button>
-      <p class="welcome-mini-text">Cada día cuenta.</p>
+      <button class="btn-green" onclick="goTo('welcome','profile')">
+        COMENZAR <i data-lucide="arrow-right"></i>
+      </button>
     </div>
   </section>
 
-  <!-- PROFILE -->
-  <section id="screen-profile" class="screen hidden-right no-scrollbar">
-    <!-- ... (mantengo igual que antes) ... -->
-    <div class="screen-header">
-      <div>
-        <h2 class="screen-title">Tu Perfil</h2>
-        <p class="screen-subtitle">Creá tu ficha profesional</p>
-      </div>
-      <div class="step-badge">PASO 1</div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Nombre</label>
-      <input id="player-name" type="text" class="form-input" placeholder="Ej: Agustín" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Club actual</label>
-      <input id="club-name" type="text" class="form-input" placeholder="Ej: Villa Dálmine" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Edad</label>
-      <input id="player-age" type="number" class="form-input" placeholder="Ej: 16" />
-    </div>
-
-    <!-- Posición y demás campos igual que antes... -->
-
-    <button class="btn-green" onclick="validateProfile()">CONTINUAR <i data-lucide="arrow-right"></i></button>
-  </section>
-
-  <!-- OBJECTIVES (ahora editables) -->
-  <section id="screen-objectives" class="screen hidden-right no-scrollbar">
-    <div class="screen-header">
-      <div>
-        <h2 class="screen-title">Objetivos</h2>
-        <p class="screen-subtitle">Definí tus metas</p>
-      </div>
-      <div class="step-badge">PASO 2</div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Objetivo corto plazo</label>
-      <textarea id="obj-short" class="form-textarea" rows="3"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Objetivo mediano plazo</label>
-      <textarea id="obj-mid" class="form-textarea" rows="3"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Objetivo largo plazo</label>
-      <textarea id="obj-long" class="form-textarea" rows="3"></textarea>
-    </div>
-
-    <button class="btn-green" onclick="saveObjectivesAndLaunch()">GUARDAR OBJETIVOS</button>
-  </section>
-
-  <!-- DASHBOARD (con donut) -->
+  <!-- DASHBOARD -->
   <section id="screen-dashboard" class="screen hidden-right no-scrollbar">
-    <div class="hero-card">
+    <div class="hero-card" style="text-align:center; padding:2rem 1rem;">
       <div class="progress-donut">
         <svg viewBox="0 0 100 100">
           <circle class="bg" cx="50" cy="50" r="42"/>
-          <circle class="progress" id="progress-circle" cx="50" cy="50" r="42"/>
+          <circle class="progress" id="progress-circle" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/>
         </svg>
         <div class="progress-percentage">
           <div id="progress-text">0%</div>
         </div>
       </div>
-
-      <div id="dash-player-name" class="hero-name">Jugador</div>
-      <div id="dash-player-club" class="hero-sub"></div>
+      <div id="dash-player-name" style="font-size:1.8rem;font-weight:900;margin-top:1rem"></div>
     </div>
 
-    <!-- Mini stats + Register trigger + Historial igual que antes -->
-    <div class="mini-stats-grid">...</div>
-    <button class="register-trigger" onclick="openRegisterModal()">Registrar día</button>
+    <button class="register-trigger" onclick="openRegisterModal()">
+      <div>
+        <div class="register-trigger-title">Registrar día</div>
+        <div class="register-trigger-sub">Entrenamiento o partido</div>
+      </div>
+      <div class="register-trigger-icon"><i data-lucide="plus"></i></div>
+    </button>
+
     <div class="feed-header"><div class="feed-title">HISTORIAL</div></div>
     <div id="journal-feed"></div>
   </section>
 
-  <!-- STATS (barras) -->
-  <section id="screen-stats" class="screen hidden-right no-scrollbar">
-    <div class="screen-header">
-      <h2 class="screen-title">Estadísticas</h2>
-    </div>
-    <div id="goals-bar-chart" style="height:180px"></div>
-    <div id="assists-bar-chart" style="height:180px"></div>
-  </section>
-
-  <!-- SETTINGS -->
-  <section id="screen-settings" class="screen hidden-right no-scrollbar">
-    <div class="screen-header">
-      <h2 class="screen-title">Configuración</h2>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Nombre</label>
-      <input id="edit-name" type="text" class="form-input" />
-    </div>
-    <div class="double-grid">
-      <div class="form-group">
-        <label class="form-label">Altura (cm)</label>
-        <input id="edit-height" type="number" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Peso (kg)</label>
-        <input id="edit-weight" type="number" class="form-input" />
-      </div>
-    </div>
-    <div class="bmi-card">
-      <div class="bmi-label">ÍNDICE CORPORAL</div>
-      <div id="settings-bmi-value" class="bmi-value">--</div>
-      <div id="settings-bmi-status" class="bmi-desc"></div>
-    </div>
-
-    <button class="btn-green" onclick="saveSettings()" style="margin-top:1rem">GUARDAR CAMBIOS</button>
-
-    <div class="danger-row" onclick="resetAllData()">
-      <div class="danger-row-left">
-        <i data-lucide="rotate-ccw"></i>
-        <div>
-          <div class="danger-row-title">Reiniciar todo</div>
-          <div class="danger-row-sub">Borrar todos los datos</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- NAV -->
-  <nav id="app-nav">
-    <button id="nav-dash" class="nav-btn active" onclick="navigate('dash')">Inicio</button>
-    <button id="nav-stats" class="nav-btn" onclick="navigate('stats')">Stats</button>
-    <button id="nav-settings" class="nav-btn" onclick="navigate('settings')">Ajustes</button>
+  <nav id="app-nav" class="visible">
+    <button id="nav-dash" class="nav-btn active" onclick="navigate('dash')"><i data-lucide="house"></i>Inicio</button>
+    <button id="nav-stats" class="nav-btn" onclick="navigate('stats')"><i data-lucide="bar-chart-3"></i>Stats</button>
+    <button id="nav-settings" class="nav-btn" onclick="navigate('settings')"><i data-lucide="settings-2"></i>Ajustes</button>
   </nav>
-
-  <!-- REGISTER MODAL (igual) -->
-  <!-- ... -->
-
 </div>
 
 <script src="main.js"></script>
