@@ -10,9 +10,13 @@ let state = {
   logs: []
 };
 
+let editingLogId = null; // Guardará el ID de la tarjeta que editamos
+let currentRegType = 'Entrenamiento'; 
+let tempRegStats = { goles: 0, asistencias: 0 };
+
 const safeGet = (id) => document.getElementById(id) || { value: '', innerText: '', style: {} };
 
-// --- INICIALIZACIÓN Y LOGIN ---
+// --- INICIALIZACIÓN ---
 window.onload = () => {
   lucide.createIcons();
   loadState();
@@ -21,7 +25,6 @@ window.onload = () => {
   const welcomeSubtitle = safeGet('welcome-subtitle');
   const welcomeBtn = safeGet('welcome-btn');
 
-  // Lógica de Ingreso (Verifica si ya existe el nombre)
   if (state.profile.name) {
     welcomeTitle.innerHTML = `¡Hola, <br><span class="texto-verde">${state.profile.name}</span>!`;
     welcomeSubtitle.innerText = "¿Listo para seguir sumando estadísticas hoy?";
@@ -32,7 +35,6 @@ window.onload = () => {
       navigate('dash'); 
     };
   } else {
-    // Usuario nuevo, lo mandamos a crear el perfil
     welcomeBtn.onclick = () => goTo('welcome', 'profile');
   }
   
@@ -74,7 +76,7 @@ function navigate(tab) {
   if (tab === 'settings') fillSettings();
 }
 
-// --- PERFIL (Paso 1) ---
+// --- PERFIL ---
 function setFoot(foot) {
   state.profile.foot = foot;
   safeGet('foot-right').classList.toggle('active', foot === 'diestro');
@@ -176,7 +178,7 @@ function renderObjectives() {
   lucide.createIcons();
 }
 
-// --- DASHBOARD (Círculos y Logros) ---
+// --- MOTOR DE ANILLOS Y RENDIMIENTO ---
 function getGradientColor(percent) {
   let p = Math.max(0, Math.min(1, percent)); let r, g, b;
   if (p <= 0.5) {
@@ -188,24 +190,44 @@ function getGradientColor(percent) {
 }
 
 function updateRing(id, current, target) {
-  let ring = safeGet(`ring-${id}`); let max = Math.max(current, target);
-  let percentage = max === 0 ? 0 : Math.min(current / target, 1);
+  let ring = safeGet(`ring-${id}`);
+  let percentage = target === 0 ? 0 : Math.min(current / target, 1);
   ring.style.strokeDashoffset = 213 - (213 * percentage);
   ring.style.stroke = getGradientColor(percentage);
   safeGet(`num-${id}`).innerText = current; safeGet(`target-sub-${id}`).innerText = `Meta: ${target}`;
 }
 
+// --- DASHBOARD (LOGROS Y FEED DE HISTORIAL) ---
 function renderDashboard() {
   safeGet('dash-player-name').innerText = state.profile.name;
   safeGet('dash-player-club').innerText = `${state.profile.position} • ${state.profile.club}`;
   
   let goles = 0; let asistencias = 0; let entrenamientos = 0; let partidos = 0;
-  let hatTricks = 0; let pokers = 0; let repokers = 0; let asistidor = 0; let socioIdeal = 0;
+  
+  // Contadores para medallas del historial con lógica fija
+  let hatTricks = 0; 
+  let pokers = 0; 
+  let dobleHatTricks = 0; 
+  let doblePokers = 0; 
+  let tripleHatTricks = 0; 
+  let cuadrupleHatTricks = 0; 
+  let asistidor = 0; 
+  let socioIdeal = 0;
 
   state.logs.forEach(l => {
     if (l.type === 'Partido') {
       partidos++; goles += l.goles; asistencias += l.asistencias;
-      if (l.goles >= 5) repokers++; else if (l.goles === 4) pokers++; else if (l.goles === 3) hatTricks++;
+      
+      // Nueva asignación estricta de logros según cantidad por partido
+      let g = l.goles;
+      if (g === 3) hatTricks++;
+      else if (g === 4 || g === 5) pokers++; // 4 y 5 cuentan como Póker
+      else if (g === 6 || g === 7) dobleHatTricks++; // 6 son Doble Hat-trick
+      else if (g === 8) doblePokers++; // 8 es Doble Póker
+      else if (g === 9) tripleHatTricks++; // 9 es Triple Hat-trick
+      else if (g === 10 || g === 11) doblePokers++; // 10 y 11 caen en Doble Póker
+      else if (g >= 12) cuadrupleHatTricks++; // 12 en adelante son 4 Hat-tricks
+      
       if (l.asistencias >= 3) asistidor++;
       if (l.goles >= 1 && l.asistencias >= 1) socioIdeal++;
     } else { entrenamientos++; }
@@ -218,7 +240,10 @@ function renderDashboard() {
   let achText = [];
   if (hatTricks) achText.push(`${hatTricks} Hat-trick${hatTricks>1?'s':''}`);
   if (pokers) achText.push(`${pokers} Póker`);
-  if (repokers) achText.push(`${repokers} Repóker`);
+  if (dobleHatTricks) achText.push(`${dobleHatTricks} Doble Hat-trick`);
+  if (doblePokers) achText.push(`${doblePokers} Doble Póker`);
+  if (tripleHatTricks) achText.push(`${tripleHatTricks} Triple Hat-trick`);
+  if (cuadrupleHatTricks) achText.push(`${cuadrupleHatTricks} 4 Hat-tricks`);
   if (asistidor) achText.push(`${asistidor} Asistidor Estrella`);
   if (socioIdeal) achText.push(`${socioIdeal} Socio Ideal`);
   
@@ -229,36 +254,100 @@ function renderDashboard() {
   if (state.logs.length === 0) {
     feed.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Sin registros. ¡Arrancá hoy!</p>`;
   } else {
+    // Rendimiento inverso para ver lo más nuevo arriba
     [...state.logs].reverse().forEach(l => {
       let d = new Date(l.date); let dateStr = d.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
       let statsHtml = l.type === 'Partido' ? `<div class="log-stats">⚽ ${l.goles} Goles | 🎯 ${l.asistencias} Asist.</div>` : '';
+      
       feed.innerHTML += `
         <div class="log-card">
-          <div class="log-top"><span class="log-type ${l.type.toLowerCase()}">${l.type.toUpperCase()}</span><span class="log-date">${dateStr}</span></div>
+          <div class="log-top">
+            <span class="log-type ${l.type.toLowerCase()}">${l.type.toUpperCase()}</span>
+            <span class="log-date">${dateStr}</span>
+            <div class="log-actions">
+              <button class="log-action-btn edit" onclick="openRegisterModal(${l.id})"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
+              <button class="log-action-btn delete" onclick="deleteDailyLog(${l.id})"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+            </div>
+          </div>
           ${statsHtml}
           ${l.reflection ? `<div class="log-reflection">"${l.reflection}"</div>` : ''}
         </div>`;
     });
   }
+  lucide.createIcons();
 }
 
-// --- REGISTRO DIARIO ---
-let currentRegType = 'Entrenamiento'; let tempRegStats = { goles: 0, asistencias: 0 };
-function openRegisterModal() { setRegType('Entrenamiento'); safeGet('reg-reflection').value = ''; safeGet('register-modal').classList.add('active'); }
-function closeSheet(id) { safeGet(id).classList.remove('active'); }
-function setRegType(type) {
-  currentRegType = type; safeGet('reg-training').classList.toggle('active', type === 'Entrenamiento'); safeGet('reg-match').classList.toggle('active', type === 'Partido');
-  safeGet('match-fields').style.display = type === 'Partido' ? 'block' : 'none';
-  tempRegStats = { goles: 0, asistencias: 0 }; safeGet('reg-val-goles').innerText = '0'; safeGet('reg-val-asistencias').innerText = '0';
+// --- MODIFICACIÓN Y REGISTRO ---
+function openRegisterModal(logId = null) {
+  if (logId) {
+    // MODO EDICIÓN
+    editingLogId = logId;
+    const log = state.logs.find(l => l.id === logId);
+    safeGet('modal-reg-title').innerText = "Editar Registro";
+    setRegType(log.type);
+    safeGet('reg-reflection').value = log.reflection || '';
+    if (log.type === 'Partido') {
+      tempRegStats.goles = log.goles || 0;
+      tempRegStats.asistencias = log.asistencias || 0;
+      safeGet('reg-val-goles').innerText = tempRegStats.goles;
+      safeGet('reg-val-asistencias').innerText = tempRegStats.asistencias;
+    }
+  } else {
+    // MODO CREACIÓN
+    editingLogId = null;
+    safeGet('modal-reg-title').innerText = "Registrar día";
+    setRegType('Entrenamiento');
+    safeGet('reg-reflection').value = '';
+  }
+  safeGet('register-modal').classList.add('active');
+  lucide.createIcons();
 }
+
+function closeSheet(id) { safeGet(id).classList.remove('active'); }
+
+function setRegType(type) {
+  currentRegType = type; 
+  safeGet('reg-training').classList.toggle('active', type === 'Entrenamiento'); 
+  safeGet('reg-match').classList.toggle('active', type === 'Partido');
+  safeGet('match-fields').style.display = type === 'Partido' ? 'block' : 'none';
+  if (!editingLogId) { tempRegStats = { goles: 0, asistencias: 0 }; safeGet('reg-val-goles').innerText = '0'; safeGet('reg-val-asistencias').innerText = '0'; }
+}
+
 function adjustRegCounter(metric, amount) {
   tempRegStats[metric] = Math.max(0, tempRegStats[metric] + amount); safeGet(`reg-val-${metric}`).innerText = tempRegStats[metric];
 }
+
 function saveDailyLog() {
-  let log = { id: Date.now(), date: new Date().toISOString(), type: currentRegType, reflection: safeGet('reg-reflection').value.trim() };
-  if (currentRegType === 'Partido') { log.goles = tempRegStats.goles; log.asistencias = tempRegStats.asistencias; }
-  state.logs.push(log); saveState(); closeSheet('register-modal'); renderDashboard();
-  if (currentRegType === 'Partido' && (log.goles > 0 || log.asistencias > 0)) triggerConfetti();
+  let log;
+  if (editingLogId) {
+    // Aplicamos los cambios al registro existente
+    log = state.logs.find(l => l.id === editingLogId);
+    log.type = currentRegType;
+    log.reflection = safeGet('reg-reflection').value.trim();
+    if (currentRegType === 'Partido') {
+      log.goles = tempRegStats.goles;
+      log.asistencias = tempRegStats.asistencias;
+    } else {
+      delete log.goles; delete log.asistencias;
+    }
+    editingLogId = null;
+  } else {
+    // Creación de registro nuevo
+    log = { id: Date.now(), date: new Date().toISOString(), type: currentRegType, reflection: safeGet('reg-reflection').value.trim() };
+    if (currentRegType === 'Partido') { log.goles = tempRegStats.goles; log.asistencias = tempRegStats.asistencias; }
+    state.logs.push(log);
+  }
+  
+  saveState(); closeSheet('register-modal'); renderDashboard();
+  if (currentRegType === 'Partido' && (log.goles > 0 || log.asistencias > 0) && !editingLogId) triggerConfetti();
+}
+
+function deleteDailyLog(logId) {
+  if (confirm("¿Estás seguro de que querés borrar este registro del historial?")) {
+    state.logs = state.logs.filter(l => l.id !== logId);
+    saveState();
+    renderDashboard();
+  }
 }
 
 // --- MODIFICAR METAS NUMÉRICAS ---
@@ -276,6 +365,7 @@ function renderStats() {
   safeGet('avg-goles').innerText = partidos > 0 ? (goles / partidos).toFixed(1) : '0.0'; safeGet('avg-asistencias').innerText = partidos > 0 ? (asistencias / partidos).toFixed(1) : '0.0';
   let toShow = ultimosPartidos.slice(-5); renderBarChart('chart-goles-bars', toShow, 'goles'); renderBarChart('chart-asistencias-bars', toShow, 'asistencias');
 }
+
 function renderBarChart(containerId, data, metric) {
   let container = safeGet(containerId); container.innerHTML = '';
   if (data.length === 0) { container.innerHTML = '<div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem;">Faltan partidos</div>'; return; }
