@@ -1,200 +1,252 @@
 /* ============================================================
-   CAMINO A PRIMERA — main.js (v1.1)
+   CAMINO A PRIMERA — main.js
    ============================================================ */
 'use strict';
 
 let state = {
-  profileSetupComplete: true,
-  playerName: "Agustín",
-  club: "Villa Dálmine",
-  position: "Extremo encarador",
-  height: "178",
-  weight: "72",
+  profileSetupComplete: false,
+  playerName: '',
+  club: '',
+  age: '',
+  position: '',
+  height: '',
+  weight: '',
+  bmi: '',
+  footSide: 'diestro',
+  attr1: '',
+  attr2: '',
+  attr3: '',
+  history: [],
   objectives: {
-    short: "Ganar titularidad",
-    mid: "Jugar regional",
-    long: "Debutar profesionalmente"
-  },
-  history: []
+    short: '',
+    mid: '',
+    long: '',
+    reflection: ''
+  }
 };
 
-let activeReg = { type: 'Entrenamiento', goles: 0, asistencias: 0 };
-let editingId = null;
+let activeReg = {
+  type: 'Entrenamiento',
+  goles: 0,
+  asistencias: 0
+};
 
 /* INIT */
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
-  renderAll();
+  loadState();
+
+  const height = document.getElementById('height');
+  const weight = document.getElementById('weight');
+  if (height) height.addEventListener('input', calculateBMI);
+  if (weight) weight.addEventListener('input', calculateBMI);
 });
 
-/* ====================== NAV & SCREENS ====================== */
-function goTo(from, to) {
-  showScreen(to);
+/* STORAGE */
+function saveState() {
+  localStorage.setItem('camino_a_primera_v3', JSON.stringify(state));
 }
 
+function loadState() {
+  const saved = localStorage.getItem('camino_a_primera_v3');
+  if (!saved) return;
+  
+  try {
+    state = JSON.parse(saved);
+    fillProfileData();
+    if (state.profileSetupComplete) {
+      document.getElementById('app-nav').classList.add('visible');
+      showScreen('dashboard');
+      updateDashboardUI();
+      updateStatsUI();
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+/* SCREENS */
 function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(screen => {
-    screen.classList.remove('active');
-  });
+  document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
   const target = document.getElementById(`screen-${name}`);
   if (target) target.classList.add('active');
 }
 
+function goTo(from, to) {
+  showScreen(to);
+  lucide.createIcons();
+}
+
 function navigate(tab) {
+  if (!state.profileSetupComplete) return;
+  
+  const map = { dash: 'dashboard', stats: 'stats', settings: 'settings' };
+  showScreen(map[tab]);
+
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
   document.getElementById(`nav-${tab}`).classList.add('active');
-  
-  if (tab === 'dash') updateDashboard();
-  if (tab === 'stats') updateStats();
+
+  if (tab === 'dash') updateDashboardUI();
+  if (tab === 'stats') updateStatsUI();
 }
 
-/* ====================== PROGRESS DONUT ====================== */
-function updateProgressDonut() {
-  const progress = calculateProgress();
-  const circle = document.getElementById('progress-circle');
-  const text = document.getElementById('progress-text');
+/* BMI */
+function calculateBMI() {
+  const h = document.getElementById('height');
+  const w = document.getElementById('weight');
+  const val = document.getElementById('bmi-value');
+  const status = document.getElementById('bmi-status');
 
-  const offset = 264 - (264 * progress / 100);
-  circle.setAttribute('stroke-dashoffset', offset);
+  if (!h || !w || !val || !status) return;
 
-  if (progress < 40) circle.setAttribute('stroke', '#888888');
-  else if (progress < 80) circle.setAttribute('stroke', '#fbbf24');
-  else circle.setAttribute('stroke', '#34d399');
+  const height = parseFloat(h.value);
+  const weight = parseFloat(w.value);
 
-  text.textContent = Math.round(progress) + "%";
-}
-
-function calculateProgress() {
-  let score = 0;
-  if (state.history.length >= 3) score += 40;
-  if (state.objectives.short) score += 20;
-  if (state.objectives.mid) score += 20;
-  if (state.objectives.long) score += 20;
-  return Math.min(100, score);
-}
-
-/* ====================== DASHBOARD ====================== */
-function updateDashboard() {
-  document.getElementById('dash-player-name').textContent = state.playerName || "Jugador";
-  updateProgressDonut();
-  renderFeed();
-}
-
-/* ====================== HISTORIAL ====================== */
-function renderFeed() {
-  const feed = document.getElementById('journal-feed');
-  feed.innerHTML = '';
-
-  if (state.history.length === 0) {
-    feed.innerHTML = `<div class="feed-empty">Todavía no registraste nada</div>`;
+  if (!height || !weight) {
+    val.innerText = '--';
+    status.innerText = 'Esperando datos...';
     return;
   }
 
-  [...state.history].reverse().forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'feed-card';
-    card.innerHTML = `
-      <div class="feed-card-header">
-        <span class="feed-card-type ${item.type === 'Partido' ? 'match' : 'training'}">${item.type}</span>
-        <span class="feed-card-date">${item.date}</span>
-      </div>
-      ${item.type === 'Partido' ? `
-      <div class="feed-card-stats">
-        <span class="stat-pill green">⚽ ${item.goles}</span>
-        <span class="stat-pill purple">🎯 ${item.asistencias}</span>
-      </div>` : ''}
-      <p class="feed-card-reflection">"${item.reflection}"</p>
-      
-      <button class="edit-btn" onclick="editRecord(${item.id})">✏️</button>
-      <button class="delete-btn" onclick="deleteRecord(${item.id})">🗑</button>
-    `;
-    feed.appendChild(card);
-  });
+  const meters = height / 100;
+  const bmi = (weight / (meters * meters)).toFixed(1);
+  state.bmi = bmi;
+  val.innerText = bmi;
+
+  let label = 'Normal';
+  if (bmi < 18.5) label = 'Bajo peso';
+  else if (bmi >= 25) label = 'Peso elevado';
+  status.innerText = label;
 }
 
-function deleteRecord(id) {
-  if (confirm("¿Eliminar este registro?")) {
-    state.history = state.history.filter(i => i.id !== id);
-    renderFeed();
-    updateProgressDonut();
+/* PROFILE */
+function setFoot(side) {
+  state.footSide = side;
+  document.getElementById('foot-right').classList.remove('active');
+  document.getElementById('foot-left').classList.remove('active');
+  document.getElementById(side === 'diestro' ? 'foot-right' : 'foot-left').classList.add('active');
+}
+
+function validateProfile() {
+  const playerName = document.getElementById('player-name').value.trim();
+  const club = document.getElementById('club-name').value.trim();
+  const age = document.getElementById('player-age').value.trim();
+  const position = document.getElementById('position').value;
+  const height = document.getElementById('height').value;
+  const weight = document.getElementById('weight').value;
+  const attr1 = document.getElementById('attr-1').value;
+  const attr2 = document.getElementById('attr-2').value;
+
+  if (!playerName || !club || !age || !position || !height || !weight || !attr1 || !attr2) {
+    showNotification('Completá todos los datos obligatorios.', 'error');
+    return;
   }
+
+  state.playerName = playerName;
+  state.club = club;
+  state.age = age;
+  state.position = position;
+  state.height = height;
+  state.weight = weight;
+  state.attr1 = attr1;
+  state.attr2 = attr2;
+  state.attr3 = document.getElementById('attr-3').value || '—';
+
+  saveState();
+  showScreen('objectives');
+  showNotification('Perfil guardado.');
 }
 
-function editRecord(id) {
-  const record = state.history.find(r => r.id === id);
-  if (!record) return;
-
-  editingId = id;
-  activeReg.type = record.type;
-  activeReg.goles = record.goles || 0;
-  activeReg.asistencias = record.asistencias || 0;
-
-  openRegisterModal();
-  document.getElementById('reg-reflection').value = record.reflection || '';
+function fillProfileData() {
+  // ... (rellena campos)
+  document.getElementById('player-name').value = state.playerName;
+  document.getElementById('club-name').value = state.club;
+  document.getElementById('player-age').value = state.age;
+  document.getElementById('position').value = state.position;
+  document.getElementById('height').value = state.height;
+  document.getElementById('weight').value = state.weight;
+  document.getElementById('attr-1').value = state.attr1;
+  document.getElementById('attr-2').value = state.attr2;
+  document.getElementById('attr-3').value = state.attr3;
+  setFoot(state.footSide);
+  calculateBMI();
 }
 
-/* ====================== REGISTER MODAL ====================== */
+/* OBJECTIVES */
+function saveObjectivesAndLaunch() {
+  state.objectives.short = document.getElementById('obj-short').value.trim();
+  state.objectives.mid = document.getElementById('obj-mid').value.trim();
+  state.objectives.long = document.getElementById('obj-long').value.trim();
+
+  if (!state.objectives.short || !state.objectives.mid || !state.objectives.long) {
+    showNotification('Completá todos los objetivos.', 'error');
+    return;
+  }
+
+  state.profileSetupComplete = true;
+  saveState();
+  document.getElementById('app-nav').classList.add('visible');
+  showScreen('dashboard');
+  updateDashboardUI();
+  showNotification('Perfil completado.');
+}
+
+/* DASHBOARD */
+function updateDashboardUI() {
+  document.getElementById('dash-player-name').innerText = state.playerName || 'Jugador';
+  document.getElementById('dash-player-club').innerText = `${state.position} • ${state.club}`;
+  document.getElementById('hero-main-objective').innerText = state.objectives.short || 'Convertirte en profesional.';
+  renderFeed();
+}
+
+/* REGISTER */
 function openRegisterModal() {
+  activeReg = { type: 'Entrenamiento', goles: 0, asistencias: 0 };
   document.getElementById('register-modal').classList.add('show');
-  setRegType(activeReg.type);
-}
-
-function closeRegisterModal(e) {
-  if (!e || e.target.id === 'register-modal') {
-    document.getElementById('register-modal').classList.remove('show');
-    editingId = null;
-  }
-}
-
-function setRegType(type) {
-  activeReg.type = type;
-  // toggle buttons logic...
+  setRegType('Entrenamiento');
 }
 
 function saveDailyLog() {
   const reflection = document.getElementById('reg-reflection').value.trim();
   if (!reflection) {
-    showNotification("Escribí una reflexión", "error");
+    showNotification('Escribí una reflexión.', 'error');
     return;
   }
 
   const date = new Date();
+  state.history.push({
+    id: Date.now(),
+    type: activeReg.type,
+    goles: activeReg.goles,
+    asistencias: activeReg.asistencias,
+    reflection: reflection,
+    date: `${date.getDate()}/${date.getMonth()+1}`
+  });
 
-  if (editingId) {
-    const item = state.history.find(i => i.id === editingId);
-    if (item) {
-      item.reflection = reflection;
-      item.type = activeReg.type;
-      item.goles = activeReg.goles;
-      item.asistencias = activeReg.asistencias;
-    }
-    editingId = null;
-  } else {
-    state.history.push({
-      id: Date.now(),
-      type: activeReg.type,
-      goles: activeReg.goles,
-      asistencias: activeReg.asistencias,
-      reflection: reflection,
-      date: `${date.getDate()}/${date.getMonth()+1}`
-    });
-  }
-
-  document.getElementById('register-modal').classList.remove('show');
-  renderFeed();
-  updateProgressDonut();
-  showNotification("Registro guardado");
+  saveState();
+  updateDashboardUI();
+  closeSheet('register-modal');
+  showNotification('Registro guardado.');
 }
 
-/* ====================== NOTIFICATION ====================== */
-function showNotification(text, type = "success") {
-  console.log(`[${type.toUpperCase()}] ${text}`);
-  // Podés mejorar el toast después
+function renderFeed() {
+  const feed = document.getElementById('journal-feed');
+  if (!feed) return;
+  feed.innerHTML = state.history.length === 0 ? `<div class="feed-empty">Todavía no registraste días.</div>` : 'Historial...';
 }
 
-/* ====================== HELPERS ====================== */
-function renderAll() {
-  updateDashboard();
+/* HELPERS */
+function showNotification(text, type = 'success') {
+  console.log(`[${type}] ${text}`);
 }
 
-console.log("%c✅ Camino a Primera v1.1 cargado correctamente", "color:#34d399;font-weight:bold");
+function setRegType(type) {
+  activeReg.type = type;
+  // toggle buttons...
+}
+
+function closeSheet(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+console.log("%c✅ Camino a Primera cargado correctamente", "color:#34d399;font-weight:bold");
