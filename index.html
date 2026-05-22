@@ -28,27 +28,17 @@
       <div class="welcome-logo">
         <i data-lucide="shield"></i>
       </div>
-      <div class="welcome-badge">
-        NUEVA GENERACIÓN
-      </div>
+      <div class="welcome-badge">NUEVA GENERACIÓN</div>
     </div>
     <div class="welcome-content">
-      <h1 class="welcome-title">
-        Camino a <br>
-        <span>Primera</span>
-      </h1>
-      <p class="welcome-subtitle">
-        Registrá entrenamientos, partidos, estadísticas y construí tu carrera hacia el fútbol profesional.
-      </p>
+      <h1 class="welcome-title">Camino a <br><span>Primera</span></h1>
+      <p class="welcome-subtitle">Registrá entrenamientos, partidos, estadísticas y construí tu carrera hacia el fútbol profesional.</p>
     </div>
     <div class="welcome-bottom">
       <button class="btn-primary" onclick="goTo('welcome','profile')">
-        COMENZAR
-        <i data-lucide="arrow-right"></i>
+        COMENZAR <i data-lucide="arrow-right"></i>
       </button>
-      <p class="welcome-mini-text">
-        Cada día cuenta.
-      </p>
+      <p class="welcome-mini-text">Cada día cuenta.</p>
     </div>
   </section>
 
@@ -66,12 +56,10 @@
       <label class="form-label">Nombre</label>
       <input id="player-name" type="text" class="form-input" placeholder="Ej: Agustín" />
     </div>
-
     <div class="form-group">
       <label class="form-label">Club actual</label>
       <input id="club-name" type="text" class="form-input" placeholder="Ej: Villa Dálmine" />
     </div>
-
     <div class="form-group">
       <label class="form-label">Edad</label>
       <input id="player-age" type="number" class="form-input" placeholder="Ej: 16" />
@@ -127,40 +115,20 @@
     <div class="form-group">
       <label class="form-label">Habilidades principales</label>
       <div class="select-wrap skill-space">
-        <select id="attr-1" class="form-select">
-          <option value="">Habilidad #1</option>
-          <option>Velocidad</option><option>Definición</option><option>Regate</option>
-          <option>Visión</option><option>Pase</option><option>Resistencia</option>
-          <option>Físico</option><option>Juego aéreo</option><option>Reflejos</option>
-          <option>Quite</option><option>Centros</option>
-        </select>
+        <select id="attr-1" class="form-select"><option value="">Habilidad #1</option><option>Velocidad</option><option>Definición</option><option>Regate</option><option>Visión</option><option>Pase</option><option>Resistencia</option><option>Físico</option><option>Juego aéreo</option><option>Reflejos</option><option>Quite</option><option>Centros</option></select>
         <i data-lucide="chevron-down"></i>
       </div>
       <div class="select-wrap skill-space">
-        <select id="attr-2" class="form-select">
-          <option value="">Habilidad #2</option>
-          <option>Velocidad</option><option>Definición</option><option>Regate</option>
-          <option>Visión</option><option>Pase</option><option>Resistencia</option>
-          <option>Físico</option><option>Juego aéreo</option><option>Reflejos</option>
-          <option>Quite</option><option>Centros</option>
-        </select>
+        <select id="attr-2" class="form-select"><option value="">Habilidad #2</option><option>Velocidad</option><option>Definición</option><option>Regate</option><option>Visión</option><option>Pase</option><option>Resistencia</option><option>Físico</option><option>Juego aéreo</option><option>Reflejos</option><option>Quite</option><option>Centros</option></select>
         <i data-lucide="chevron-down"></i>
       </div>
       <div class="select-wrap">
-        <select id="attr-3" class="form-select">
-          <option value="">Habilidad #3 (Opcional)</option>
-          <option>Velocidad</option><option>Definición</option><option>Regate</option>
-          <option>Visión</option><option>Pase</option><option>Resistencia</option>
-          <option>Físico</option><option>Juego aéreo</option><option>Reflejos</option>
-          <option>Quite</option><option>Centros</option>
-        </select>
+        <select id="attr-3" class="form-select"><option value="">Habilidad #3 (Opcional)</option><option>Velocidad</option><option>Definición</option><option>Regate</option><option>Visión</option><option>Pase</option><option>Resistencia</option><option>Físico</option><option>Juego aéreo</option><option>Reflejos</option><option>Quite</option><option>Centros</option></select>
         <i data-lucide="chevron-down"></i>
       </div>
     </div>
 
-    <button class="btn-green" onclick="validateProfile()">
-      CONTINUAR <i data-lucide="arrow-right"></i>
-    </button>
+    <button class="btn-green" onclick="validateProfile()">CONTINUAR <i data-lucide="arrow-right"></i></button>
   </section>
 
   <!-- OBJECTIVES -->
@@ -185,14 +153,8 @@
       <label class="form-label">Objetivo largo plazo</label>
       <textarea id="obj-long" class="form-textarea" rows="3" placeholder="Ej: Debutar profesionalmente"></textarea>
     </div>
-    <div class="form-group">
-      <label class="form-label">Mentalidad</label>
-      <textarea id="reflection-general" class="form-textarea" rows="5" placeholder="¿Por qué querés llegar?"></textarea>
-    </div>
 
-    <button class="btn-green" onclick="saveObjectivesAndLaunch()">
-      TERMINAR PERFIL <i data-lucide="shield-check"></i>
-    </button>
+    <button class="btn-green" onclick="saveObjectivesAndLaunch()">TERMINAR PERFIL <i data-lucide="shield-check"></i></button>
   </section>
 
   <!-- DASHBOARD -->
@@ -203,9 +165,7 @@
           <div id="dash-player-name" class="hero-name">Jugador</div>
           <div id="dash-player-club" class="hero-sub">Club</div>
         </div>
-        <div class="hero-icon">
-          <i data-lucide="sparkles"></i>
-        </div>
+        <div class="hero-icon"><i data-lucide="sparkles"></i></div>
       </div>
       <div class="hero-objective">
         <div class="hero-objective-label">OBJETIVO PRINCIPAL</div>
@@ -214,22 +174,10 @@
     </div>
 
     <div class="mini-stats-grid">
-      <div class="mini-stat-card">
-        <div class="mini-stat-value" id="num-goles">0</div>
-        <div class="mini-stat-label">Goles</div>
-      </div>
-      <div class="mini-stat-card">
-        <div class="mini-stat-value" id="num-asistencias">0</div>
-        <div class="mini-stat-label">Asistencias</div>
-      </div>
-      <div class="mini-stat-card">
-        <div class="mini-stat-value" id="num-partidos">0</div>
-        <div class="mini-stat-label">Partidos</div>
-      </div>
-      <div class="mini-stat-card">
-        <div class="mini-stat-value" id="num-entrenamientos">0</div>
-        <div class="mini-stat-label">Entrenamientos</div>
-      </div>
+      <div class="mini-stat-card"><div class="mini-stat-value" id="num-goles">0</div><div class="mini-stat-label">Goles</div></div>
+      <div class="mini-stat-card"><div class="mini-stat-value" id="num-asistencias">0</div><div class="mini-stat-label">Asistencias</div></div>
+      <div class="mini-stat-card"><div class="mini-stat-value" id="num-partidos">0</div><div class="mini-stat-label">Partidos</div></div>
+      <div class="mini-stat-card"><div class="mini-stat-value" id="num-entrenamientos">0</div><div class="mini-stat-label">Entrenamientos</div></div>
     </div>
 
     <button class="register-trigger" onclick="openRegisterModal()">
@@ -237,92 +185,18 @@
         <div class="register-trigger-title">Registrar día</div>
         <div class="register-trigger-sub">Entrenamiento o partido</div>
       </div>
-      <div class="register-trigger-icon">
-        <i data-lucide="plus"></i>
-      </div>
+      <div class="register-trigger-icon"><i data-lucide="plus"></i></div>
     </button>
 
-    <div class="feed-header">
-      <div class="feed-title">HISTORIAL</div>
-    </div>
+    <div class="feed-header"><div class="feed-title">HISTORIAL</div></div>
     <div id="journal-feed"></div>
-  </section>
-
-  <!-- STATS -->
-  <section id="screen-stats" class="screen hidden-right no-scrollbar">
-    <div class="screen-header">
-      <div>
-        <h2 class="screen-title">Estadísticas</h2>
-        <p class="screen-subtitle">Tu rendimiento general</p>
-      </div>
-    </div>
-
-    <div class="stats-block">
-      <div class="stats-block-label">Totales</div>
-      <div class="stats-totals-grid">
-        <div>
-          <div id="total-goles" class="stats-total-num">0</div>
-          <div class="stats-total-label">Goles</div>
-        </div>
-        <div>
-          <div id="total-asistencias" class="stats-total-num">0</div>
-          <div class="stats-total-label">Asistencias</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="stats-block">
-      <div class="stats-block-label">Rendimiento</div>
-      <div id="chart-container"></div>
-    </div>
-
-    <div class="stats-block">
-      <div class="stats-block-label">Habilidades</div>
-      <div class="attr-row">
-        <div class="attr-label">Habilidad 1</div>
-        <div id="stat-attr-1" class="attr-value-white">-</div>
-      </div>
-      <div class="attr-row">
-        <div class="attr-label">Habilidad 2</div>
-        <div id="stat-attr-2" class="attr-value-white">-</div>
-      </div>
-      <div class="attr-row">
-        <div class="attr-label">Habilidad 3</div>
-        <div id="stat-attr-3" class="attr-value-white">-</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SETTINGS -->
-  <section id="screen-settings" class="screen hidden-right no-scrollbar">
-    <div class="screen-header">
-      <div>
-        <h2 class="screen-title">Configuración</h2>
-        <p class="screen-subtitle">Ajustes generales</p>
-      </div>
-    </div>
-    <div class="danger-row">
-      <div class="danger-row-left">
-        <i data-lucide="rotate-ccw" class="danger-row-icon"></i>
-        <div>
-          <div class="danger-row-title">Reiniciar progreso</div>
-          <div class="danger-row-sub">Borra todos los datos</div>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- NAV -->
   <nav id="app-nav">
-    <button id="nav-dash" class="nav-btn active" onclick="navigate('dash')">
-      <i data-lucide="house"></i> Inicio
-    </button>
-    <button id="nav-stats" class="nav-btn" onclick="navigate('stats')">
-      <i data-lucide="bar-chart-3"></i> Stats
-    </button>
-    <button id="nav-settings" class="nav-btn" onclick="navigate('settings')">
-      <i data-lucide="settings-2"></i> Ajustes
-    </button>
+    <button id="nav-dash" class="nav-btn active" onclick="navigate('dash')"><i data-lucide="house"></i>Inicio</button>
+    <button id="nav-stats" class="nav-btn" onclick="navigate('stats')"><i data-lucide="bar-chart-3"></i>Stats</button>
+    <button id="nav-settings" class="nav-btn" onclick="navigate('settings')"><i data-lucide="settings-2"></i>Ajustes</button>
   </nav>
 
   <!-- REGISTER MODAL -->
@@ -330,9 +204,7 @@
     <div class="sheet-panel">
       <div class="sheet-header">
         <div class="sheet-title">Registrar día</div>
-        <button class="sheet-close" onclick="closeSheet('register-modal')">
-          <i data-lucide="x"></i>
-        </button>
+        <button class="sheet-close" onclick="closeSheet('register-modal')"><i data-lucide="x"></i></button>
       </div>
 
       <div class="toggle-group modal-space">
