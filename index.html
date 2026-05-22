@@ -10,11 +10,9 @@
 </head>
 <body>
 <div id="app-wrapper">
-  <!-- AMBIENT -->
   <div class="ambient ambient-top"></div>
   <div class="ambient ambient-bottom"></div>
 
-  <!-- TOAST -->
   <div id="toast-container">
     <div class="toast-inner">
       <div id="toast-icon"></div>
@@ -22,7 +20,6 @@
     </div>
   </div>
 
-  <!-- WELCOME -->
   <section id="screen-welcome" class="screen active">
     <div class="welcome-top">
       <div class="welcome-logo">
@@ -42,8 +39,7 @@
     </div>
   </section>
 
-  <!-- PROFILE -->
-  <section id="screen-profile" class="screen hidden-right no-scrollbar">
+  <section id="screen-profile" class="screen no-scrollbar">
     <div class="screen-header">
       <div>
         <h2 class="screen-title">Tu Perfil</h2>
@@ -89,11 +85,11 @@
 
     <div class="double-grid">
       <div class="form-group">
-        <label class="form-label">Altura</label>
+        <label class="form-label">Altura (cm)</label>
         <input id="height" type="number" class="form-input" placeholder="178" />
       </div>
       <div class="form-group">
-        <label class="form-label">Peso</label>
+        <label class="form-label">Peso (kg)</label>
         <input id="weight" type="number" class="form-input" placeholder="72" />
       </div>
     </div>
@@ -151,8 +147,7 @@
     </button>
   </section>
 
-  <!-- OBJECTIVES -->
-  <section id="screen-objectives" class="screen hidden-right no-scrollbar">
+  <section id="screen-objectives" class="screen no-scrollbar">
     <div class="screen-header">
       <div>
         <h2 class="screen-title">Objetivos</h2>
@@ -179,8 +174,7 @@
     </button>
   </section>
 
-  <!-- DASHBOARD -->
-  <section id="screen-dashboard" class="screen hidden-right no-scrollbar">
+  <section id="screen-dashboard" class="screen no-scrollbar">
     <div class="hero-card">
       <div class="hero-top">
         <div>
@@ -232,7 +226,6 @@
     <div id="journal-feed"></div>
   </section>
 
-  <!-- NAV -->
   <nav id="app-nav">
     <button id="nav-dash" class="nav-btn active" onclick="navigate('dash')">
       <i data-lucide="house"></i> Inicio
@@ -245,12 +238,11 @@
     </button>
   </nav>
 
-  <!-- REGISTER MODAL -->
-  <div id="register-modal" class="sheet-overlay" onclick="closeRegisterModal(event)">
+  <div id="register-modal" class="sheet-overlay">
     <div class="sheet-panel">
       <div class="sheet-header">
         <div class="sheet-title">Registrar día</div>
-        <button class="sheet-close" onclick="closeSheet('register-modal')">
+        <button class="sheet-close" onclick="closeRegisterModal()">
           <i data-lucide="x"></i>
         </button>
       </div>
