@@ -1,5 +1,5 @@
 /* ============================================================
-   CAMINO A PRIMERA — main.js
+   CAMINO A PRIMERA — main.js (Versión Optimizada)
    ============================================================ */
 'use strict';
 
@@ -58,7 +58,7 @@ function loadState() {
       document.getElementById('app-nav').classList.add('visible');
       showScreen('dashboard');
       updateDashboardUI();
-      updateStatsUI();
+      // updateStatsUI(); // Descomentar cuando implementes la pantalla de stats
     }
   } catch (e) {
     console.error(e);
@@ -84,10 +84,11 @@ function navigate(tab) {
   showScreen(map[tab]);
 
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(`nav-${tab}`).classList.add('active');
+  const activeBtn = document.getElementById(`nav-${tab}`);
+  if (activeBtn) activeBtn.classList.add('active');
 
   if (tab === 'dash') updateDashboardUI();
-  if (tab === 'stats') updateStatsUI();
+  // if (tab === 'stats') updateStatsUI(); // Descomentar cuando implementes stats
 }
 
 /* BMI */
@@ -122,9 +123,14 @@ function calculateBMI() {
 /* PROFILE */
 function setFoot(side) {
   state.footSide = side;
-  document.getElementById('foot-right').classList.remove('active');
-  document.getElementById('foot-left').classList.remove('active');
-  document.getElementById(side === 'diestro' ? 'foot-right' : 'foot-left').classList.add('active');
+  const rightBtn = document.getElementById('foot-right');
+  const leftBtn = document.getElementById('foot-left');
+  
+  if (rightBtn) rightBtn.classList.remove('active');
+  if (leftBtn) leftBtn.classList.remove('active');
+  
+  const targetBtn = document.getElementById(side === 'diestro' ? 'foot-right' : 'foot-left');
+  if (targetBtn) targetBtn.classList.add('active');
 }
 
 function validateProfile() {
@@ -158,7 +164,8 @@ function validateProfile() {
 }
 
 function fillProfileData() {
-  // ... (rellena campos)
+  if (!state.playerName) return;
+  
   document.getElementById('player-name').value = state.playerName;
   document.getElementById('club-name').value = state.club;
   document.getElementById('player-age').value = state.age;
@@ -196,14 +203,66 @@ function updateDashboardUI() {
   document.getElementById('dash-player-name').innerText = state.playerName || 'Jugador';
   document.getElementById('dash-player-club').innerText = `${state.position} • ${state.club}`;
   document.getElementById('hero-main-objective').innerText = state.objectives.short || 'Convertirte en profesional.';
+  
+  // Calcular globales sumando el historial
+  let totales = { goles: 0, asistencias: 0, partidos: 0, entrenamientos: 0 };
+  state.history.forEach(log => {
+    if (log.type === 'Partido') {
+      totales.partidos++;
+      totales.goles += log.goles || 0;
+      totales.asistencias += log.asistencias || 0;
+    } else if (log.type === 'Entrenamiento') {
+      totales.entrenamientos++;
+    }
+  });
+
+  // Renderizar contadores en las cajitas del dashboard
+  document.getElementById('num-goles').innerText = totales.goles;
+  document.getElementById('num-asistencias').innerText = totales.asistencias;
+  document.getElementById('num-partidos').innerText = totales.partidos;
+  document.getElementById('num-entrenamientos').innerText = totales.entrenamientos;
+
   renderFeed();
 }
 
-/* REGISTER */
+/* REGISTER MODAL ACTIONS */
 function openRegisterModal() {
   activeReg = { type: 'Entrenamiento', goles: 0, asistencias: 0 };
+  
+  // Resetear inputs del modal visualmente
+  document.getElementById('reg-val-goles').innerText = '0';
+  document.getElementById('reg-val-asistencias').innerText = '0';
+  document.getElementById('reg-reflection').value = '';
+  
   document.getElementById('register-modal').classList.add('show');
   setRegType('Entrenamiento');
+}
+
+function setRegType(type) {
+  activeReg.type = type;
+  
+  const trBtn = document.getElementById('reg-training');
+  const maBtn = document.getElementById('reg-match');
+  const matchFields = document.getElementById('match-fields');
+
+  if (type === 'Partido') {
+    if (trBtn) trBtn.classList.remove('active');
+    if (maBtn) maBtn.classList.add('active');
+    if (matchFields) matchFields.style.display = 'block';
+  } else {
+    if (maBtn) maBtn.classList.remove('active');
+    if (trBtn) trBtn.classList.add('active');
+    if (matchFields) matchFields.style.display = 'none';
+  }
+}
+
+function adjustRegCounter(field, amount) {
+  if (activeReg[field] === undefined) return;
+  // Math.max evita que el número baje de cero
+  activeReg[field] = Math.max(0, activeReg[field] + amount);
+  
+  const display = document.getElementById(`reg-val-${field}`);
+  if (display) display.innerText = activeReg[field];
 }
 
 function saveDailyLog() {
@@ -214,35 +273,64 @@ function saveDailyLog() {
   }
 
   const date = new Date();
-  state.history.push({
+  state.history.unshift({ // unshift lo agrega al inicio para que el historial sea cronológico inverso
     id: Date.now(),
     type: activeReg.type,
-    goles: activeReg.goles,
-    asistencias: activeReg.asistencias,
+    goles: activeReg.type === 'Partido' ? activeReg.goles : 0,
+    asistencias: activeReg.type === 'Partido' ? activeReg.asistencias : 0,
     reflection: reflection,
-    date: `${date.getDate()}/${date.getMonth()+1}`
+    date: `${date.getDate()}/${date.getMonth() + 1}`
   });
+
+  // Tirar papelitos si se registra un partido
+  if (activeReg.type === 'Partido' && typeof confetti === 'function') {
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#34d399', '#8b5cf6', '#ffffff'] });
+  }
 
   saveState();
   updateDashboardUI();
   closeSheet('register-modal');
-  showNotification('Registro guardado.');
+  showNotification('Registro guardado exitosamente.');
 }
 
 function renderFeed() {
   const feed = document.getElementById('journal-feed');
   if (!feed) return;
-  feed.innerHTML = state.history.length === 0 ? `<div class="feed-empty">Todavía no registraste días.</div>` : 'Historial...';
+  
+  if (state.history.length === 0) {
+    feed.innerHTML = `<div class="feed-empty">Todavía no registraste días.</div>`;
+    return;
+  }
+
+  // Arma las tarjetas del historial con tus clases y estilos
+  let html = '';
+  state.history.forEach(log => {
+    const isMatch = log.type === 'Partido';
+    const badgeColor = isMatch ? 'var(--purple)' : 'var(--green)';
+    const statsDetail = isMatch ? `<span style="color:var(--white); font-size:0.8rem; font-weight:700; margin-left:8px;">⚽ ${log.goles} | 👟 ${log.asistencias}</span>` : '';
+
+    html += `
+      <div class="mini-stat-card" style="margin-bottom: 0.75rem; background: rgba(255,255,255,0.02); border-left: 4px solid ${badgeColor}; padding: 1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <span style="font-size:0.7rem; font-weight:900; color:${badgeColor}; letter-spacing:0.05em; text-transform:uppercase;">${log.type} ${statsDetail}</span>
+          <span style="font-size:0.75rem; color:var(--muted); font-weight:700;">${log.date}</span>
+        </div>
+        <p style="font-size:0.88rem; color:var(--text); line-height:1.4; font-style:italic;">"${log.reflection}"</p>
+      </div>
+    `;
+  });
+  
+  feed.innerHTML = html;
 }
 
 /* HELPERS */
 function showNotification(text, type = 'success') {
-  console.log(`[${type}] ${text}`);
+  console.log(`[${type.toUpperCase()}] ${text}`);
+  // Aquí podrías enlazarlo a tu contenedor HTML de toasts si querés que aparezca flotando en la pantalla
 }
 
-function setRegType(type) {
-  activeReg.type = type;
-  // toggle buttons...
+function closeRegisterModal() {
+  closeSheet('register-modal');
 }
 
 function closeSheet(id) {
