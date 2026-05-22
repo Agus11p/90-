@@ -1,455 +1,466 @@
-/* ============================================================
-   CAMINO A PRIMERA — main.js (Versión Blindada y Completa)
-   ============================================================ */
-'use strict';
-
+// --- ESTADO GLOBAL ---
 let state = {
-  profileSetupComplete: false,
-  playerName: '', club: '', age: '', position: '', height: '', weight: '', bmi: '', footSide: 'diestro',
-  attr1: '', attr2: '',
-  history: [],
-  objectives: { short: '', mid: '', long: '' },
-  targets: { goles: 10, asistencias: 10 }
+  profile: {
+    name: '', club: '', age: '', position: '',
+    height: '', weight: '', foot: 'diestro',
+    attr1: '', attr2: ''
+  },
+  objectives: {
+    short: [],   // Array de objetos: { id, text, completed }
+    medium: [],
+    long: []
+  },
+  metrics: {
+    goles: { target: 10, current: 0 },
+    asistencias: { target: 10, current: 0 }
+  },
+  logs: []
 };
 
-let activeReg = { type: 'Entrenamiento', goles: 0, asistencias: 0 };
-let editingLogId = null; 
-let activeTargetMetric = null; 
+// Utilidad para agarrar elementos sin romper si no existen
+const safeGet = (id) => document.getElementById(id) || { value: '', innerText: '', style: {} };
 
-/* HELPERS DE SEGURIDAD (Evitan que la app se rompa si falta un ID) */
-function safeGet(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
-}
-
-function safeSet(id, value, prop = 'value') {
-  const el = document.getElementById(id);
-  if (el) el[prop] = value;
-}
-
-function safeInner(id, text) {
-  const el = document.getElementById(id);
-  if (el) el.innerText = text;
-}
-
-/* INIT */
-window.addEventListener('DOMContentLoaded', () => {
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+// Inicialización
+window.onload = () => {
+  lucide.createIcons();
   loadState();
-
-  const h = document.getElementById('height');
-  const w = document.getElementById('weight');
-  if (h) h.addEventListener('input', calculateBMI);
-  if (w) w.addEventListener('input', calculateBMI);
-});
-
-/* LOCAL STORAGE */
-function saveState() {
-  localStorage.setItem('camino_a_primera_v4', JSON.stringify(state));
-}
+  
+  if (state.profile.name) {
+    if (state.objectives.short.length > 0 || state.objectives.medium.length > 0 || state.objectives.long.length > 0) {
+      navigate('dash');
+    } else {
+      goTo('welcome', 'objectives');
+    }
+  }
+  
+  setupBMI();
+};
 
 function loadState() {
-  const saved = localStorage.getItem('camino_a_primera_v4');
-  if (!saved) return;
-  try {
-    state = JSON.parse(saved);
-    if (!state.targets) state.targets = { goles: 10, asistencias: 10 };
-    
-    fillProfileInputs();
-    
-    if (state.profileSetupComplete) {
-      const nav = document.getElementById('app-nav');
-      if (nav) nav.classList.add('visible');
-      showScreen('dashboard');
-      updateDashboardUI();
+  const saved = localStorage.getItem('caminoPrimeraState');
+  if (saved) {
+    let parsed = JSON.parse(saved);
+    // Asegurar estructura de array para objetivos viejos (migración silenciosa)
+    if (!parsed.objectives.short || !Array.isArray(parsed.objectives.short)) {
+      parsed.objectives = { short: [], medium: [], long: [] };
     }
-  } catch (e) {
-    console.error("Error cargando LocalStorage: ", e);
+    state = parsed;
+    fillProfileData();
   }
 }
 
-/* NAVEGACIÓN */
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(`screen-${name}`);
-  if (target) target.classList.add('active');
+function saveState() {
+  localStorage.setItem('caminoPrimeraState', JSON.stringify(state));
 }
 
-function goTo(from, to) {
-  showScreen(to);
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+// --- NAVEGACIÓN Y PANTALLAS ---
+function goTo(fromId, toId) {
+  document.getElementById(`screen-${fromId}`).classList.remove('active');
+  document.getElementById(`screen-${toId}`).classList.add('active');
 }
 
 function navigate(tab) {
-  if (!state.profileSetupComplete) return;
-  const map = { dash: 'dashboard', stats: 'stats', settings: 'settings' };
-  showScreen(map[tab]);
-
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById(`nav-${tab}`);
-  if (btn) btn.classList.add('active');
-
-  if (tab === 'dash') updateDashboardUI();
-  if (tab === 'stats') updateStatsUI();
-  if (tab === 'settings') loadSettingsFields();
-  if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-/* IMC */
-function calculateBMI() {
-  const height = parseFloat(safeGet('height'));
-  const weight = parseFloat(safeGet('weight'));
-
-  if (!height || !weight) {
-    safeInner('bmi-value', '--');
-    safeInner('bmi-status', 'Esperando datos...');
-    return;
-  }
-
-  const m = height / 100;
-  const bmi = (weight / (m * m)).toFixed(1);
-  state.bmi = bmi;
-  safeInner('bmi-value', bmi);
-
-  let txt = 'Normal';
-  if (bmi < 18.5) txt = 'Bajo peso';
-  else if (bmi >= 25) txt = 'Peso elevado';
-  safeInner('bmi-status', txt);
-}
-
-function setFoot(side) {
-  state.footSide = side;
-  const rBtn = document.getElementById('foot-right');
-  const lBtn = document.getElementById('foot-left');
-  if (rBtn) rBtn.classList.remove('active');
-  if (lBtn) lBtn.classList.remove('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${tab}`).classList.add('active');
   
-  const target = document.getElementById(side === 'diestro' ? 'foot-right' : 'foot-left');
-  if (target) target.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`nav-${tab}`).classList.add('active');
+  
+  document.getElementById('app-nav').style.display = 'flex';
+  
+  if (tab === 'dash') renderDashboard();
+  if (tab === 'objectives') renderObjectives();
+  if (tab === 'stats') renderStats();
+  if (tab === 'settings') fillSettings();
 }
 
-/* PASO 1: PERFIL */
+// --- PERFIL (Paso 1) ---
+function setFoot(foot) {
+  state.profile.foot = foot;
+  safeGet('foot-right').classList.toggle('active', foot === 'diestro');
+  safeGet('foot-left').classList.toggle('active', foot === 'zurdo');
+}
+
 function validateProfile() {
-  const name = safeGet('player-name');
-  const clb = safeGet('club-name');
-  const age = safeGet('player-age');
-  const pos = safeGet('position');
-  const h = safeGet('height');
-  const w = safeGet('weight');
-  const a1 = safeGet('attr-1');
-  const a2 = safeGet('attr-2');
+  state.profile.name = safeGet('player-name').value.trim();
+  state.profile.club = safeGet('club-name').value.trim();
+  state.profile.age = safeGet('player-age').value;
+  state.profile.position = safeGet('position').value;
+  state.profile.height = safeGet('height').value;
+  state.profile.weight = safeGet('weight').value;
+  state.profile.attr1 = safeGet('attr-1').value;
+  state.profile.attr2 = safeGet('attr-2').value;
 
-  if (!name || !clb || !age || !pos || !h || !w || !a1 || !a2) {
-    console.warn("Faltan campos obligatorios en el perfil.");
+  if (!state.profile.name || !state.profile.club) {
+    alert("Completá tu nombre y club para continuar.");
     return;
   }
-
-  state.playerName = name; state.club = clb; state.age = age; state.position = pos;
-  state.height = h; state.weight = w; state.attr1 = a1; state.attr2 = a2;
-
+  
   saveState();
-  showScreen('objectives');
+  goTo('profile', 'objectives');
 }
 
-function fillProfileInputs() {
-  if (!state.playerName) return;
-  safeSet('player-name', state.playerName);
-  safeSet('club-name', state.club);
-  safeSet('player-age', state.age);
-  safeSet('position', state.position);
-  safeSet('height', state.height);
-  safeSet('weight', state.weight);
-  safeSet('attr-1', state.attr1);
-  safeSet('attr-2', state.attr2);
-  setFoot(state.footSide);
-  calculateBMI();
-}
-
-/* PASO 2: OBJETIVOS INICIALES */
-function saveObjectivesAndLaunch() {
-  state.objectives.short = safeGet('obj-short');
-  state.objectives.mid = safeGet('obj-mid');
-  state.objectives.long = safeGet('obj-long');
-
-  if (!state.objectives.short || !state.objectives.mid || !state.objectives.long) return;
-
-  state.profileSetupComplete = true;
-  saveState();
-  const nav = document.getElementById('app-nav');
-  if (nav) nav.classList.add('visible');
-  showScreen('dashboard');
-  updateDashboardUI();
-}
-
-/* INICIO / DASHBOARD */
-function updateDashboardUI() {
-  safeInner('dash-player-name', state.playerName || 'Jugador');
-  safeInner('dash-player-club', `${state.position || 'Posición'} • ${state.club || 'Club'}`);
-  safeInner('hero-main-objective', state.objectives.short || 'Sin meta corta fijada');
-  
-  let tot = { goles: 0, asistencias: 0, partidos: 0, entrenamientos: 0 };
-  state.history.forEach(log => {
-    if (log.type === 'Partido') { tot.partidos++; tot.goles += log.goles; tot.asistencias += log.asistencias; }
-    else if (log.type === 'Entrenamiento') { tot.entrenamientos++; }
-  });
-
-  safeInner('num-goles', tot.goles);
-  safeInner('num-asistencias', tot.asistencias);
-  safeInner('num-partidos', tot.partidos);
-  safeInner('num-entrenamientos', tot.entrenamientos);
-
-  safeInner('target-sub-goles', `Meta: ${state.targets.goles}`);
-  safeInner('target-sub-asistencias', `Meta: ${state.targets.asistencias}`);
-
-  updateRingProgress('goles', tot.goles, state.targets.goles);
-  updateRingProgress('asistencias', tot.asistencias, state.targets.asistencias);
-
-  renderFeed();
-}
-
-/* ANILLOS DE PROGRESO SVG (Gris -> Amarillo -> Verde) */
-function updateRingProgress(metric, value, target) {
-  const ring = document.getElementById(`ring-${metric}`);
-  if (!ring) return;
-  
-  const circumference = 113.09; // 2 * PI * r (r=18)
-  let percent = target > 0 ? value / target : 0;
-  if (percent > 1) percent = 1;
-
-  const offset = circumference - (percent * circumference);
-  ring.style.strokeDashoffset = offset;
-
-  if (percent >= 1) { ring.style.stroke = 'var(--green)'; }
-  else if (percent >= 0.5) { ring.style.stroke = 'var(--yellow)'; }
-  else { ring.style.stroke = 'var(--muted)'; }
-}
-
-/* METAS MODAL */
-function openObjectiveModal(metric) {
-  activeTargetMetric = metric;
-  safeInner('obj-modal-title', `Establecer Meta de ${metric.toUpperCase()}`);
-  safeInner('obj-modal-label', `Cantidad total de ${metric} que querés alcanzar:`);
-  safeSet('obj-modal-input', state.targets[metric]);
-  
-  const modal = document.getElementById('objective-modal');
-  if (modal) modal.classList.add('show');
-}
-
-function saveMetricObjective() {
-  const val = parseInt(safeGet('obj-modal-input'));
-  if (!val || val <= 0) return;
-  state.targets[activeTargetMetric] = val;
-  saveState();
-  updateDashboardUI();
-  closeSheet('objective-modal');
-}
-
-/* HISTORIAL / DIARIO ACTIONS */
-function openRegisterModal() {
-  editingLogId = null;
-  activeReg = { type: 'Entrenamiento', goles: 0, asistencias: 0 };
-  safeInner('modal-reg-title', "Registrar día");
-  
-  const toggles = document.getElementById('modal-reg-toggles');
-  if (toggles) toggles.style.display = 'flex';
-  
-  safeInner('reg-val-goles', '0');
-  safeInner('reg-val-asistencias', '0');
-  safeSet('reg-reflection', '');
-  setRegType('Entrenamiento');
-  
-  const modal = document.getElementById('register-modal');
-  if (modal) modal.classList.add('show');
-}
-
-function setRegType(type) {
-  activeReg.type = type;
-  const trBtn = document.getElementById('reg-training');
-  const maBtn = document.getElementById('reg-match');
-  const fields = document.getElementById('match-fields');
-
-  if (type === 'Partido') {
-    if (trBtn) trBtn.classList.remove('active');
-    if (maBtn) maBtn.classList.add('active');
-    if (fields) fields.style.display = 'block';
-  } else {
-    if (maBtn) maBtn.classList.remove('active');
-    if (trBtn) trBtn.classList.add('active');
-    if (fields) fields.style.display = 'none';
+function setupBMI() {
+  const hInput = safeGet('height');
+  const wInput = safeGet('weight');
+  const calculate = () => {
+    let h = parseFloat(hInput.value) / 100;
+    let w = parseFloat(wInput.value);
+    if (h > 0 && w > 0) {
+      let bmi = (w / (h * h)).toFixed(1);
+      safeGet('bmi-value').innerText = bmi;
+      let status = bmi < 18.5 ? "Bajo peso" : (bmi < 25 ? "Peso ideal" : "Sobrepeso");
+      safeGet('bmi-status').innerText = status;
+    }
+  };
+  if(hInput.addEventListener) {
+    hInput.addEventListener('input', calculate);
+    wInput.addEventListener('input', calculate);
   }
 }
 
-function adjustRegCounter(field, amt) {
-  if (activeReg[field] === undefined) return;
-  activeReg[field] = Math.max(0, activeReg[field] + amt);
-  safeInner(`reg-val-${field}`, activeReg[field]);
+function fillProfileData() {
+  safeGet('player-name').value = state.profile.name;
+  safeGet('club-name').value = state.profile.club;
+  safeGet('player-age').value = state.profile.age;
+  safeGet('position').value = state.profile.position;
+  safeGet('height').value = state.profile.height;
+  safeGet('weight').value = state.profile.weight;
+  safeGet('attr-1').value = state.profile.attr1;
+  safeGet('attr-2').value = state.profile.attr2;
+  setFoot(state.profile.foot || 'diestro');
 }
 
-function saveDailyLog() {
-  const reflection = safeGet('reg-reflection');
-  if (!reflection) return;
+// --- OBJETIVOS DINÁMICOS (Paso 2 y Pestaña) ---
+function openAddObjModal(type) {
+  safeGet('new-obj-type').value = type;
+  safeGet('new-obj-text').value = '';
+  safeGet('add-obj-modal').classList.add('active');
+}
 
-  if (editingLogId !== null) {
-    const idx = state.history.findIndex(l => l.id === editingLogId);
-    if (idx !== -1) {
-      state.history[idx].goles = activeReg.type === 'Partido' ? activeReg.goles : 0;
-      state.history[idx].asistencias = activeReg.type === 'Partido' ? activeReg.asistencias : 0;
-      state.history[idx].reflection = reflection;
-    }
+function saveNewDynamicObjective() {
+  const type = safeGet('new-obj-type').value;
+  const text = safeGet('new-obj-text').value.trim();
+  
+  if (!text) { alert("Escribí una meta."); return; }
+  
+  state.objectives[type].push({
+    id: Date.now().toString(),
+    text: text,
+    completed: false
+  });
+  
+  saveState();
+  closeSheet('add-obj-modal');
+  
+  // Si estoy en la pantalla de setup
+  if (document.getElementById('screen-objectives').classList.contains('active') && !document.getElementById('app-nav').style.display) {
+     navigate('dash');
   } else {
-    const d = new Date();
-    state.history.unshift({
-      id: Date.now(),
-      type: activeReg.type,
-      goles: activeReg.type === 'Partido' ? activeReg.goles : 0,
-      asistencias: activeReg.type === 'Partido' ? activeReg.asistencias : 0,
-      reflection: reflection,
-      date: `${d.getDate()}/${d.getMonth() + 1}`
+     renderObjectives();
+  }
+}
+
+function toggleObjective(type, id) {
+  let obj = state.objectives[type].find(o => o.id === id);
+  if (obj) {
+    obj.completed = !obj.completed;
+    saveState();
+    renderObjectives();
+    if (obj.completed) triggerConfetti();
+  }
+}
+
+function deleteObjective(type, id) {
+  if (confirm("¿Borrar esta meta?")) {
+    state.objectives[type] = state.objectives[type].filter(o => o.id !== id);
+    saveState();
+    renderObjectives();
+  }
+}
+
+function renderObjectives() {
+  const types = [
+    { key: 'short', id: 'list-obj-short' },
+    { key: 'medium', id: 'list-obj-medium' },
+    { key: 'long', id: 'list-obj-long' }
+  ];
+
+  types.forEach(t => {
+    const container = safeGet(t.id);
+    container.innerHTML = '';
+    
+    if (state.objectives[t.key].length === 0) {
+      container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1rem;">No hay metas. Toca el + para agregar una.</p>`;
+      return;
+    }
+
+    state.objectives[t.key].forEach(obj => {
+      let div = document.createElement('div');
+      div.className = `obj-item ${obj.completed ? 'completed' : ''}`;
+      div.innerHTML = `
+        <div class="obj-content" onclick="toggleObjective('${t.key}', '${obj.id}')">
+          <div class="obj-check"><i data-lucide="check" style="width:14px;height:14px"></i></div>
+          <div class="obj-text">${obj.text}</div>
+        </div>
+        <button class="obj-delete" onclick="deleteObjective('${t.key}', '${obj.id}')"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button>
+      `;
+      container.appendChild(div);
     });
-    if (activeReg.type === 'Partido' && typeof confetti === 'function') {
-      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#34d399', '#8b5cf6', '#ffffff'] });
+  });
+  lucide.createIcons();
+}
+
+// --- DASHBOARD Y LOGROS ---
+function getGradientColor(percent) {
+  let p = Math.max(0, Math.min(1, percent));
+  let r, g, b;
+  
+  if (p <= 0.5) {
+    let factor = p * 2; 
+    r = Math.round(68 + (255 - 68) * factor); // 68 -> 255
+    g = Math.round(68 + (204 - 68) * factor); // 68 -> 204
+    b = Math.round(68 + (0 - 68) * factor);   // 68 -> 0
+  } else {
+    let factor = (p - 0.5) * 2; 
+    r = Math.round(255 + (0 - 255) * factor); // 255 -> 0
+    g = Math.round(204 + (204 - 204) * factor); // 204 -> 204
+    b = Math.round(0 + (102 - 0) * factor);   // 0 -> 102
+  }
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function updateRing(id, current, target) {
+  let ring = safeGet(`ring-${id}`);
+  let max = Math.max(current, target);
+  let percentage = max === 0 ? 0 : Math.min(current / target, 1);
+  
+  let offset = 213 - (213 * percentage);
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = getGradientColor(percentage);
+  
+  safeGet(`num-${id}`).innerText = current;
+  safeGet(`target-sub-${id}`).innerText = `Meta: ${target}`;
+}
+
+function renderDashboard() {
+  safeGet('dash-player-name').innerText = state.profile.name;
+  safeGet('dash-player-club').innerText = `${state.profile.position} • ${state.profile.club}`;
+  
+  // Calcular métricas
+  let goles = 0; let asistencias = 0; let entrenamientos = 0; let partidos = 0;
+  let hatTricks = 0; let pokers = 0; let repokers = 0; let asistidor = 0; let socioIdeal = 0;
+
+  state.logs.forEach(l => {
+    if (l.type === 'Partido') {
+      partidos++;
+      goles += l.goles;
+      asistencias += l.asistencias;
+      
+      // Motor de Logros
+      if (l.goles >= 5) repokers++;
+      else if (l.goles === 4) pokers++;
+      else if (l.goles === 3) hatTricks++;
+      
+      if (l.asistencias >= 3) asistidor++;
+      if (l.goles >= 1 && l.asistencias >= 1) socioIdeal++;
+    } else {
+      entrenamientos++;
     }
+  });
+
+  state.metrics.goles.current = goles;
+  state.metrics.asistencias.current = asistencias;
+
+  updateRing('goles', goles, state.metrics.goles.target);
+  updateRing('asistencias', asistencias, state.metrics.asistencias.target);
+
+  safeGet('num-partidos').innerText = partidos;
+  safeGet('num-entrenamientos').innerText = entrenamientos;
+
+  // Renderizar Medallas
+  let achText = [];
+  if (hatTricks) achText.push(`${hatTricks} Hat-trick${hatTricks>1?'s':''}`);
+  if (pokers) achText.push(`${pokers} Póker`);
+  if (repokers) achText.push(`${repokers} Repóker`);
+  if (asistidor) achText.push(`${asistidor} Asistidor Estrella`);
+  if (socioIdeal) achText.push(`${socioIdeal} Socio Ideal`);
+  
+  const achContainer = safeGet('achievements-list');
+  if (achText.length > 0) {
+    achContainer.innerHTML = achText.map(a => `<span class="badge-achievement">${a}</span>`).join('');
+  } else {
+    achContainer.innerHTML = '<span class="badge-empty">Aún no hay medallas. ¡Rompela en la cancha!</span>';
   }
 
-  saveState();
-  updateDashboardUI();
-  closeSheet('register-modal');
-}
-
-function editLog(id) {
-  const log = state.history.find(l => l.id === id);
-  if (!log) return;
-
-  editingLogId = id;
-  activeReg.type = log.type;
-  activeReg.goles = log.goles;
-  activeReg.asistencias = log.asistencias;
-
-  safeInner('modal-reg-title', `Editar ${log.type}`);
-  const toggles = document.getElementById('modal-reg-toggles');
-  if (toggles) toggles.style.display = 'none';
-  
-  setRegType(log.type);
-  safeInner('reg-val-goles', log.goles);
-  safeInner('reg-val-asistencias', log.asistencias);
-  safeSet('reg-reflection', log.reflection);
-
-  const modal = document.getElementById('register-modal');
-  if (modal) modal.classList.add('show');
-}
-
-function deleteLog(id) {
-  state.history = state.history.filter(l => l.id !== id);
-  saveState();
-  updateDashboardUI();
-}
-
-function renderFeed() {
-  const feed = document.getElementById('journal-feed');
-  if (!feed) return;
-  if (state.history.length === 0) { feed.innerHTML = `<div class="feed-empty">Todavía no registraste días.</div>`; return; }
-
-  let html = '';
-  state.history.forEach(log => {
-    const isMatch = log.type === 'Partido';
-    const border = isMatch ? 'var(--purple)' : 'var(--green)';
-    const statsStr = isMatch ? `<span style="color:var(--white); font-weight:700; margin-left:8px;">⚽ ${log.goles} | 👟 ${log.asistencias}</span>` : '';
-
-    html += `
-      <div class="feed-card" style="border-left: 4px solid ${border};">
-        <div class="feed-card-header">
-          <span style="font-size:0.7rem; font-weight:900; color:${border}; letter-spacing:0.05em; text-transform:uppercase;">${log.type} ${statsStr}</span>
-          <div class="feed-card-actions">
-            <span style="font-size:0.75rem; color:var(--muted); font-weight:700; margin-right:4px;">${log.date}</span>
-            <button class="feed-action-btn edit" onclick="editLog(${log.id})"><i data-lucide="edit-3"></i></button>
-            <button class="feed-action-btn delete" onclick="deleteLog(${log.id})"><i data-lucide="trash-2"></i></button>
+  // Feed de Actividad
+  let feed = safeGet('journal-feed');
+  feed.innerHTML = '';
+  if (state.logs.length === 0) {
+    feed.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Sin registros. ¡Arrancá hoy!</p>`;
+  } else {
+    let sortedLogs = [...state.logs].reverse();
+    sortedLogs.forEach(l => {
+      let d = new Date(l.date);
+      let dateStr = d.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
+      let typeClass = l.type.toLowerCase();
+      let statsHtml = l.type === 'Partido' ? `<div class="log-stats">⚽ ${l.goles} Goles | 🎯 ${l.asistencias} Asist.</div>` : '';
+      
+      feed.innerHTML += `
+        <div class="log-card">
+          <div class="log-top">
+            <span class="log-type ${typeClass}">${l.type.toUpperCase()}</span>
+            <span class="log-date">${dateStr}</span>
           </div>
+          ${statsHtml}
+          ${l.reflection ? `<div class="log-reflection">"${l.reflection}"</div>` : ''}
         </div>
-        <p style="font-size:0.88rem; color:var(--text); line-height:1.4; font-style:italic;">"${log.reflection}"</p>
-      </div>
-    `;
-  });
-  feed.innerHTML = html;
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+      `;
+    });
+  }
 }
 
-/* STATS SCREEN */
-function updateStatsUI() {
-  let partidos = state.history.filter(l => l.type === 'Partido');
-  let totPartidos = partidos.length;
-  let goles = 0, asistencias = 0;
+// --- REGISTRO DIARIO (Modales) ---
+let currentRegType = 'Entrenamiento';
+let tempRegStats = { goles: 0, asistencias: 0 };
 
-  partidos.forEach(p => { goles += p.goles; asistencias += p.asistencias; });
-
-  const avgGoles = totPartidos > 0 ? (goles / totPartidos).toFixed(2) : "0.00";
-  const avgAsist = totPartidos > 0 ? (asistencias / totPartidos).toFixed(2) : "0.00";
-
-  safeInner('avg-goles', avgGoles);
-  safeInner('avg-asistencias', avgAsist);
-
-  let lastMatches = [...partidos].slice(0, 6).reverse();
-  renderBarChart('chart-goles-bars', lastMatches, 'goles', true);
-  renderBarChart('chart-asistencias-bars', lastMatches, 'asistencias', false);
-}
-
-function renderBarChart(containerId, matches, metric, isGreen) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  if (matches.length === 0) { container.innerHTML = `<div style="font-size:0.8rem; color:var(--muted); padding:1rem; text-align:center; width:100%;">Registrá partidos para ver la evolución</div>`; return; }
-
-  let maxVal = Math.max(...matches.map(m => m[metric]), 1); 
-  let html = '';
-
-  matches.forEach(m => {
-    let pct = (m[metric] / maxVal) * 100;
-    let barClass = isGreen ? 'chart-bar green-bar' : 'chart-bar';
-    html += `
-      <div class="chart-column">
-        <div class="chart-bar-wrapper">
-          <div class="${barClass}" style="height: ${pct}%">
-            <span class="chart-val-pop">${m[metric]}</span>
-          </div>
-        </div>
-        <div class="chart-label">${m.date}</div>
-      </div>
-    `;
-  });
-  container.innerHTML = html;
-}
-
-/* SETTINGS SCREEN */
-function loadSettingsFields() {
-  safeSet('edit-club', state.club);
-  safeSet('edit-age', state.age);
-  safeSet('edit-weight', state.weight);
-  safeSet('edit-height', state.height);
-  safeSet('edit-obj-short', state.objectives.short);
-}
-
-function saveSettingsUpdate() {
-  const c = safeGet('edit-club');
-  const a = safeGet('edit-age');
-  const w = safeGet('edit-weight');
-  const h = safeGet('edit-height');
-  const o = safeGet('edit-obj-short');
-
-  if (!c || !a || !w || !h || !o) return;
-
-  state.club = c; state.age = a; state.weight = w; state.height = h; state.objectives.short = o;
-  
-  const m = parseFloat(h) / 100;
-  state.bmi = (parseFloat(w) / (m * m)).toFixed(1);
-
-  saveState();
-  updateDashboardUI();
-  showScreen('dashboard');
-  
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const navDash = document.getElementById('nav-dash');
-  if (navDash) navDash.classList.add('active');
+function openRegisterModal() {
+  setRegType('Entrenamiento');
+  safeGet('reg-reflection').value = '';
+  safeGet('register-modal').classList.add('active');
 }
 
 function closeSheet(id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.classList.remove('show');
+  safeGet(id).classList.remove('active');
+}
+
+function setRegType(type) {
+  currentRegType = type;
+  safeGet('reg-training').classList.toggle('active', type === 'Entrenamiento');
+  safeGet('reg-match').classList.toggle('active', type === 'Partido');
+  
+  safeGet('match-fields').style.display = type === 'Partido' ? 'block' : 'none';
+  tempRegStats = { goles: 0, asistencias: 0 };
+  safeGet('reg-val-goles').innerText = '0';
+  safeGet('reg-val-asistencias').innerText = '0';
+}
+
+function adjustRegCounter(metric, amount) {
+  tempRegStats[metric] += amount;
+  if (tempRegStats[metric] < 0) tempRegStats[metric] = 0;
+  safeGet(`reg-val-${metric}`).innerText = tempRegStats[metric];
+}
+
+function saveDailyLog() {
+  let log = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    type: currentRegType,
+    reflection: safeGet('reg-reflection').value.trim()
+  };
+  
+  if (currentRegType === 'Partido') {
+    log.goles = tempRegStats.goles;
+    log.asistencias = tempRegStats.asistencias;
+  }
+
+  state.logs.push(log);
+  saveState();
+  closeSheet('register-modal');
+  renderDashboard();
+  
+  if (currentRegType === 'Partido' && (log.goles > 0 || log.asistencias > 0)) {
+    triggerConfetti();
+  }
+}
+
+// --- MODIFICAR METAS NUMÉRICAS ---
+let editingMetric = '';
+function openObjectiveModal(metric) {
+  editingMetric = metric;
+  let name = metric === 'goles' ? 'Goles' : 'Asistencias';
+  safeGet('obj-modal-title').innerText = `Meta de ${name}`;
+  safeGet('obj-modal-input').value = state.metrics[metric].target;
+  safeGet('objective-modal').classList.add('active');
+}
+
+function saveMetricObjective() {
+  let val = parseInt(safeGet('obj-modal-input').value);
+  if (val > 0) {
+    state.metrics[editingMetric].target = val;
+    saveState();
+    closeSheet('objective-modal');
+    renderDashboard();
+  } else {
+    alert("La meta debe ser mayor a 0.");
+  }
+}
+
+// --- ESTADÍSTICAS ---
+function renderStats() {
+  let partidos = 0; let goles = 0; let asistencias = 0;
+  let ultimosPartidos = [];
+
+  state.logs.forEach(l => {
+    if (l.type === 'Partido') {
+      partidos++;
+      goles += l.goles;
+      asistencias += l.asistencias;
+      ultimosPartidos.push(l);
+    }
+  });
+
+  safeGet('avg-goles').innerText = partidos > 0 ? (goles / partidos).toFixed(1) : '0.0';
+  safeGet('avg-asistencias').innerText = partidos > 0 ? (asistencias / partidos).toFixed(1) : '0.0';
+
+  let toShow = ultimosPartidos.slice(-5);
+  renderBarChart('chart-goles-bars', toShow, 'goles');
+  renderBarChart('chart-asistencias-bars', toShow, 'asistencias');
+}
+
+function renderBarChart(containerId, data, metric) {
+  let container = safeGet(containerId);
+  container.innerHTML = '';
+  
+  if (data.length === 0) {
+    container.innerHTML = '<div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem;">Faltan partidos</div>';
+    return;
+  }
+
+  let maxVal = Math.max(...data.map(d => d[metric]), 1);
+
+  data.forEach((d, i) => {
+    let heightPercent = (d[metric] / maxVal) * 100;
+    container.innerHTML += `
+      <div class="chart-bar-wrap">
+        <span style="font-size:0.7rem; color:var(--primary); font-weight:bold;">${d[metric]}</span>
+        <div class="bar" style="height:${heightPercent}%"></div>
+        <div class="bar-label">P${i+1}</div>
+      </div>
+    `;
+  });
+}
+
+// --- AJUSTES ---
+function fillSettings() {
+  safeGet('edit-club').value = state.profile.club;
+  safeGet('edit-position').value = state.profile.position;
+  safeGet('edit-age').value = state.profile.age;
+  safeGet('edit-weight').value = state.profile.weight;
+  safeGet('edit-height').value = state.profile.height;
+}
+
+function saveSettingsUpdate() {
+  state.profile.club = safeGet('edit-club').value;
+  state.profile.position = safeGet('edit-position').value;
+  state.profile.age = safeGet('edit-age').value;
+  state.profile.weight = safeGet('edit-weight').value;
+  state.profile.height = safeGet('edit-height').value;
+  
+  saveState();
+  alert("Datos actualizados correctamente.");
+}
+
+function triggerConfetti() {
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#ffcc00', '#ffffff'] });
 }
